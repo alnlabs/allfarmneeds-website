@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BookingForm } from "@/components/booking-form";
 import { EnquiryForm } from "@/components/enquiry-form";
 import { PageFallback } from "@/components/page-fallback";
+import { ReportForm } from "@/components/report-form";
 import { PageShell, Panel } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { formatArea } from "@/lib/locations";
@@ -53,8 +54,6 @@ async function ServiceDetailContent({
           business_name,
           verification_status,
           about,
-          phone,
-          whatsapp,
           show_contact_publicly
         )
       ),
@@ -92,10 +91,14 @@ async function ServiceDetailContent({
       : [];
   const photos: string[] = listing.photo_urls ?? [];
 
-  const phoneDigits = digitsOnly(providerProfile?.phone);
-  const whatsappDigits = digitsOnly(providerProfile?.whatsapp || providerProfile?.phone);
-  const showContact =
-    !!providerProfile?.show_contact_publicly && (!!phoneDigits || !!whatsappDigits);
+  const { data: contactRows } = await supabase.rpc("get_provider_contact", {
+    p_provider_id: listing.provider_id,
+  });
+  const contact = Array.isArray(contactRows) ? contactRows[0] : contactRows;
+  const phoneDigits = digitsOnly(contact?.phone);
+  const whatsappDigits = digitsOnly(contact?.whatsapp || contact?.phone);
+  // RPC already enforces privacy; only render buttons when numbers are returned.
+  const showContact = !!(phoneDigits || whatsappDigits);
 
   return (
     <PageShell
@@ -254,6 +257,16 @@ async function ServiceDetailContent({
           </Panel>
         </div>
       </div>
+
+      {user ? (
+        <div className="mt-6">
+          <ReportForm
+            targetType="service_listing"
+            targetId={listing.id}
+            returnTo={`/services/${listing.id}`}
+          />
+        </div>
+      ) : null}
     </PageShell>
   );
 }

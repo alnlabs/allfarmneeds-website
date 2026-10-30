@@ -1,29 +1,19 @@
 import { createClient } from "@/utils/supabase/server";
 
-export async function getListingFormOptions() {
+export async function getTgApLocationOptions() {
   const supabase = await createClient();
-
-  const [
-    { data: categories },
-    { data: districts },
-    { data: mandals },
-    { data: villages },
-  ] = await Promise.all([
-    supabase
-      .from("service_categories")
-      .select("id, name_en, name_te")
-      .order("name_en"),
-    supabase
-      .from("districts")
-      .select("id, name, state_id, states!inner(name)")
-      .in("states.name", ["Telangana", "Andhra Pradesh"])
-      .order("name"),
-    supabase.from("mandals").select("id, name, district_id").order("name"),
-    supabase.from("villages").select("id, name, mandal_id").order("name"),
-  ]);
+  const [{ data: districts }, { data: mandals }, { data: villages }] =
+    await Promise.all([
+      supabase
+        .from("districts")
+        .select("id, name, state_id, states!inner(name)")
+        .in("states.name", ["Telangana", "Andhra Pradesh"])
+        .order("name"),
+      supabase.from("mandals").select("id, name, district_id").order("name"),
+      supabase.from("villages").select("id, name, mandal_id").order("name"),
+    ]);
 
   return {
-    categories: categories ?? [],
     districts: (districts ?? []).map((district) => {
       const state = Array.isArray(district.states)
         ? district.states[0]
@@ -39,6 +29,54 @@ export async function getListingFormOptions() {
     }),
     mandals: mandals ?? [],
     villages: villages ?? [],
+  };
+}
+
+export async function getListingFormOptions() {
+  const supabase = await createClient();
+  const [{ data: categories }, locations] = await Promise.all([
+    supabase
+      .from("service_categories")
+      .select("id, name_en, name_te")
+      .order("name_en"),
+    getTgApLocationOptions(),
+  ]);
+
+  return {
+    categories: categories ?? [],
+    ...locations,
+  };
+}
+
+export async function getJobFormOptions() {
+  const supabase = await createClient();
+  const [{ data: categories }, locations] = await Promise.all([
+    supabase
+      .from("job_categories")
+      .select("id, name_en, name_te")
+      .order("name_en"),
+    getTgApLocationOptions(),
+  ]);
+
+  return {
+    categories: categories ?? [],
+    ...locations,
+  };
+}
+
+export async function getProductFormOptions() {
+  const supabase = await createClient();
+  const [{ data: categories }, locations] = await Promise.all([
+    supabase
+      .from("product_categories")
+      .select("id, name_en, name_te")
+      .order("name_en"),
+    getTgApLocationOptions(),
+  ]);
+
+  return {
+    categories: categories ?? [],
+    ...locations,
   };
 }
 

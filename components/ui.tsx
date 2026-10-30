@@ -27,9 +27,17 @@ export function PageShell({
   );
 }
 
-export function Panel({ children }: { children: ReactNode }) {
+export function Panel({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <section className="rounded-2xl border border-border bg-white p-5">
+    <section
+      className={`rounded-2xl border border-border bg-white p-5${className ? ` ${className}` : ""}`}
+    >
       {children}
     </section>
   );

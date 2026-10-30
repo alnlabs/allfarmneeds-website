@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { requireUser } from "@/lib/auth";
 import type { Locale } from "@/lib/locale";
 import { getRequestLocale } from "@/lib/locale-server";
+import { createClient } from "@/utils/supabase/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,7 +26,23 @@ export const metadata: Metadata = {
 
 async function Header() {
   const user = await requireUser();
-  return <SiteHeader email={user?.email} roles={user?.roles ?? []} />;
+  let unreadNotifications = 0;
+  if (user) {
+    const supabase = await createClient();
+    const { count } = await supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .is("read_at", null);
+    unreadNotifications = count ?? 0;
+  }
+  return (
+    <SiteHeader
+      email={user?.email}
+      roles={user?.roles ?? []}
+      unreadNotifications={unreadNotifications}
+    />
+  );
 }
 
 function AppChrome({

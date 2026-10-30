@@ -48,19 +48,19 @@ async function HomeContent() {
       live: true,
     },
     {
-      href: null,
+      href: "/jobs",
       ...copy.modules.farmJobs,
-      live: false,
+      live: true,
     },
     {
-      href: null,
+      href: "/crops",
       ...copy.modules.cropMarketplace,
-      live: false,
+      live: true,
     },
     {
-      href: null,
+      href: "/buyers",
       ...copy.modules.buyersTraders,
-      live: false,
+      live: true,
     },
   ] as const;
 
@@ -75,6 +75,12 @@ async function HomeContent() {
             className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
           >
             {copy.browseServices}
+          </Link>
+          <Link
+            href="/agri-mitra"
+            className="rounded-xl border border-border bg-white px-4 py-2.5 hover:bg-accent-soft"
+          >
+            {copy.agriMitra}
           </Link>
           <Link
             href="/login"
@@ -108,6 +114,19 @@ async function HomeContent() {
             </div>
           ),
         )}
+      </div>
+
+      <div className="mt-3">
+        <Link
+          href="/agri-mitra"
+          className="block rounded-2xl border border-border bg-white p-5 transition hover:border-accent"
+        >
+          <p className="text-sm text-muted">
+            {locale === "te" ? "వాయిస్ సహాయకుడు" : "Voice assistant"}
+          </p>
+          <h2 className="mt-1 text-xl font-semibold">{copy.agriMitra}</h2>
+          <p className="mt-2 text-sm text-muted">{copy.agriMitraBody}</p>
+        </Link>
       </div>
 
       <div className="mt-6">

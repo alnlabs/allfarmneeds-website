@@ -5,7 +5,12 @@ import { createClient } from "@/utils/supabase/server";
 import { requireUser, type AppRole } from "@/lib/auth";
 import { safeInternalPath } from "@/lib/redirect";
 
-const selectableRoles: AppRole[] = ["farmer", "service_provider"];
+const selectableRoles: AppRole[] = [
+  "farmer",
+  "worker",
+  "service_provider",
+  "buyer",
+];
 
 export type RoleActionState = {
   error?: string;
@@ -93,6 +98,14 @@ export async function saveRoles(
 
   if (selected.includes("service_provider")) {
     redirect(`/provider/profile?next=${encodeURIComponent(next)}`);
+  }
+
+  if (selected.includes("worker")) {
+    redirect(`/worker/profile?next=${encodeURIComponent(next)}`);
+  }
+
+  if (selected.includes("buyer")) {
+    redirect(`/buyer/profile?next=${encodeURIComponent(next)}`);
   }
 
   redirect(next);

@@ -34,7 +34,7 @@ async function RolesContent({
   return (
     <PageShell
       title="Choose your roles"
-      subtitle="One account can be both a farmer and a service provider."
+      subtitle="One account can hold farmer, worker, provider, and buyer roles."
     >
       <Panel>
         <RolesForm

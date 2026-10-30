@@ -24,13 +24,18 @@ async function ProviderProfileContent({
   const nextPath = safeInternalPath(params.next) || "/provider/listings";
 
   const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from("provider_profiles")
-    .select(
-      "business_name, about, logo_url, verification_status, phone, whatsapp, show_contact_publicly",
-    )
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [{ data: profile }, { data: contact }] = await Promise.all([
+    supabase
+      .from("provider_profiles")
+      .select("business_name, about, logo_url, verification_status, show_contact_publicly")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("provider_private_contacts")
+      .select("phone, whatsapp")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
 
   return (
     <PageShell
@@ -42,8 +47,8 @@ async function ProviderProfileContent({
           businessName={profile?.business_name ?? ""}
           about={profile?.about ?? ""}
           logoUrl={profile?.logo_url ?? ""}
-          phone={profile?.phone ?? ""}
-          whatsapp={profile?.whatsapp ?? ""}
+          phone={contact?.phone ?? ""}
+          whatsapp={contact?.whatsapp ?? ""}
           showContactPublicly={profile?.show_contact_publicly ?? false}
           nextPath={nextPath}
         />

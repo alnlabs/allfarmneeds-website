@@ -75,6 +75,7 @@ export const messages = {
     farmServices: "Farm Services",
     bookings: "Bookings",
     messages: "Messages",
+    notifications: "Notifications",
     myListings: "My listings",
     providerBookings: "Provider bookings",
     providerProfile: "Provider profile",
@@ -86,6 +87,8 @@ export const messages = {
     homeSubtitle:
       "Everything farmers need. One platform. Find agricultural services across Telangana and Andhra Pradesh.",
     browseServices: "Browse Farm Services",
+    agriMitra: "Agri Mitra",
+    agriMitraBody: "Voice or text assistant for services, jobs and crops.",
     serviceCategories: "Service categories",
     comingNext: "Coming next.",
     modules: {
@@ -97,17 +100,17 @@ export const messages = {
       farmJobs: {
         title: "Farm Jobs",
         te: "వ్యవసాయ ఉద్యోగాలు",
-        body: "Hire and find farm workers. Coming next.",
+        body: "Hire workers or apply for paid farm work near your village.",
       },
       cropMarketplace: {
         title: "Crop Marketplace",
         te: "పంట మార్కెట్",
-        body: "Buy and sell crops. Coming next.",
+        body: "Sell produce or reserve approved crop stock near your village.",
       },
       buyersTraders: {
         title: "Buyers & Traders",
         te: "కొనుగోలుదారులు & వ్యాపారులు",
-        body: "Connect with traders and buyers. Coming next.",
+        body: "Post purchase needs or offer supply to approved buyers.",
       },
     },
     servicesTitle: "Agricultural services",
@@ -139,6 +142,7 @@ export const messages = {
     farmServices: "వ్యవసాయ సేవలు",
     bookings: "బుకింగ్‌లు",
     messages: "సందేశాలు",
+    notifications: "నోటిఫికేషన్లు",
     myListings: "నా జాబితాలు",
     providerBookings: "ప్రొవైడర్ బుకింగ్‌లు",
     providerProfile: "ప్రొవైడర్ ప్రొఫైల్",
@@ -150,6 +154,8 @@ export const messages = {
     homeSubtitle:
       "రైతులకు కావాల్సినవన్నీ. ఒకే వేదిక. తెలంగాణ మరియు ఆంధ్రప్రదేశ్‌లో వ్యవసాయ సేవలు కనుగొనండి.",
     browseServices: "వ్యవసాయ సేవలు చూడండి",
+    agriMitra: "అగ్రి మిత్ర",
+    agriMitraBody: "సేవలు, ఉద్యోగాలు, పంటలకు వాయిస్ లేదా టెక్స్ట్ సహాయకుడు.",
     serviceCategories: "సేవా వర్గాలు",
     comingNext: "త్వరలో.",
     modules: {
@@ -161,17 +167,17 @@ export const messages = {
       farmJobs: {
         title: "వ్యవసాయ ఉద్యోగాలు",
         te: "Farm Jobs",
-        body: "పొలం పని కూలీలను కనుగొనండి. త్వరలో.",
+        body: "కూలీలను నియమించండి లేదా పొలం పనులకు దరఖాస్తు చేయండి.",
       },
       cropMarketplace: {
         title: "పంట మార్కెట్",
         te: "Crop Marketplace",
-        body: "పంటలు కొనండి, అమ్మండి. త్వరలో.",
+        body: "పంటలు అమ్మండి లేదా ఆమోదించిన స్టాక్ రిజర్వ్ చేయండి.",
       },
       buyersTraders: {
         title: "కొనుగోలుదారులు & వ్యాపారులు",
         te: "Buyers & Traders",
-        body: "వ్యాపారులు మరియు కొనుగోలుదారులతో కనెక్ట్ అవ్వండి. త్వరలో.",
+        body: "కొనుగోలు అవసరాలు పోస్ట్ చేయండి లేదా సరఫరా ఆఫర్ పంపండి.",
       },
     },
     servicesTitle: "వ్యవసాయ సేవలు",

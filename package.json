@@ -6,7 +6,8 @@
     "dev": "next dev --port 2200",
     "build": "next build",
     "start": "next start --port 2200",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:rls:contacts": "node --env-file=.env.local scripts/rls-provider-contact-privacy.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

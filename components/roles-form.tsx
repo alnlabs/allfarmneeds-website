@@ -77,7 +77,21 @@ export function RolesForm({
           <span>
             <span className="block font-medium">Farmer</span>
             <span className="text-sm text-muted">
-              Find agricultural services near your village or town.
+              Find services, post farm jobs, and sell produce on the crop marketplace.
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-3 rounded-xl border border-border bg-white p-3">
+          <input
+            type="checkbox"
+            name="worker"
+            defaultChecked={roles.includes("worker")}
+            className="mt-1"
+          />
+          <span>
+            <span className="block font-medium">Farm worker</span>
+            <span className="text-sm text-muted">
+              Browse farm jobs and apply for paid work near your village.
             </span>
           </span>
         </label>
@@ -92,6 +106,20 @@ export function RolesForm({
             <span className="block font-medium">Service provider</span>
             <span className="text-sm text-muted">
               Publish tractor, labour, irrigation and other farm services.
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-3 rounded-xl border border-border bg-white p-3">
+          <input
+            type="checkbox"
+            name="buyer"
+            defaultChecked={roles.includes("buyer")}
+            className="mt-1"
+          />
+          <span>
+            <span className="block font-medium">Buyer / trader</span>
+            <span className="text-sm text-muted">
+              Reserve approved crop listings and manage deals with sellers.
             </span>
           </span>
         </label>

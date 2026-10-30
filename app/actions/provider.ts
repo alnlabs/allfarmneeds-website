@@ -42,18 +42,31 @@ export async function saveProviderProfile(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("provider_profiles").upsert({
+  const { error: profileError } = await supabase.from("provider_profiles").upsert({
     user_id: user.id,
     business_name: businessName,
     about,
     logo_url: logoUrl,
-    phone,
-    whatsapp,
+    // Public columns intentionally left null — numbers live in private contacts.
+    phone: null,
+    whatsapp: null,
     show_contact_publicly: showContactPublicly,
   });
 
-  if (error) {
-    return { error: error.message };
+  if (profileError) {
+    return { error: profileError.message };
+  }
+
+  const { error: contactError } = await supabase
+    .from("provider_private_contacts")
+    .upsert({
+      user_id: user.id,
+      phone,
+      whatsapp,
+    });
+
+  if (contactError) {
+    return { error: contactError.message };
   }
 
   redirect(next === "/" ? "/provider/listings" : next);

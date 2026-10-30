@@ -58,6 +58,46 @@ export async function sendEnquiry(
   redirect(`/messages/${data.id}`);
 }
 
+export async function replyToEnquiry(
+  _prev: EnquiryActionState,
+  formData: FormData,
+): Promise<EnquiryActionState> {
+  const user = await requireUser();
+  if (!user) redirect("/login");
+
+  const enquiryId = Number(formData.get("enquiry_id"));
+  const body = String(formData.get("body") ?? "").trim();
+  if (!enquiryId || body.length < 2) {
+    return { error: "Write a reply before sending." };
+  }
+
+  const supabase = await createClient();
+  const { data: enquiry } = await supabase
+    .from("enquiries")
+    .select("id, status, sender_id, recipient_id")
+    .eq("id", enquiryId)
+    .maybeSingle();
+
+  if (
+    !enquiry ||
+    (enquiry.sender_id !== user.id && enquiry.recipient_id !== user.id)
+  ) {
+    return { error: "Enquiry not found." };
+  }
+  if (enquiry.status !== "open") {
+    return { error: "This enquiry is closed." };
+  }
+
+  const { error } = await supabase.from("enquiry_messages").insert({
+    enquiry_id: enquiryId,
+    sender_id: user.id,
+    body,
+  });
+  if (error) return { error: error.message };
+
+  redirect(`/messages/${enquiryId}`);
+}
+
 export async function closeEnquiry(formData: FormData) {
   const user = await requireUser();
   if (!user) {

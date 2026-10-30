@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { updateBookingStatus } from "@/app/actions/bookings";
 import { PageFallback } from "@/components/page-fallback";
+import { ReviewForm } from "@/components/review-form";
 import { PageShell, Panel, PrimaryButton, Select } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/utils/supabase/server";
@@ -34,12 +35,27 @@ async function ProviderBookingsContent() {
       message,
       preferred_date,
       created_at,
+      farmer_id,
       service_listings(id, title),
       profiles!service_bookings_farmer_id_fkey(display_name)
     `,
     )
     .eq("provider_id", user.id)
     .order("created_at", { ascending: false });
+
+  const completedIds = (bookings ?? [])
+    .filter((b) => b.status === "completed")
+    .map((b) => b.id);
+  const { data: existingReviews } =
+    completedIds.length > 0
+      ? await supabase
+          .from("reviews")
+          .select("entity_id")
+          .eq("reviewer_id", user.id)
+          .eq("entity_type", "service_booking")
+          .in("entity_id", completedIds)
+      : { data: [] };
+  const reviewed = new Set((existingReviews ?? []).map((r) => r.entity_id));
 
   return (
     <PageShell
@@ -85,6 +101,15 @@ async function ProviderBookingsContent() {
                   </Select>
                   <PrimaryButton type="submit">Update status</PrimaryButton>
                 </form>
+                {booking.status === "completed" && !reviewed.has(booking.id) ? (
+                  <ReviewForm
+                    entityType="service_booking"
+                    entityId={booking.id}
+                    revieweeId={booking.farmer_id}
+                    revieweeLabel={farmer?.display_name ?? "farmer"}
+                    returnTo="/provider/bookings"
+                  />
+                ) : null}
               </Panel>
             );
           })
