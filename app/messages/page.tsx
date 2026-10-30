@@ -53,7 +53,7 @@ async function MessagesContent() {
             body={
               locale === "te"
                 ? "సేవలు లేదా జాబితాల నుండి సంప్రదించినప్పుడు సందేశాలు ఇక్కడ కనిపిస్తాయి."
-                : "When you contact a listing, enquiries appear here. Alerts for bookings stay under Notifications in My account."
+                : "When you contact a listing, enquiries appear here. Alerts for bookings stay under Notifications in My work."
             }
             action={
               <Link

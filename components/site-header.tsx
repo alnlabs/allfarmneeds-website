@@ -35,6 +35,23 @@ function NavLink({
   );
 }
 
+function MenuSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="pt-2 first:pt-0">
+      <p className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+        {label}
+      </p>
+      <div className="flex flex-col gap-0.5">{children}</div>
+    </div>
+  );
+}
+
 function UnreadBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
@@ -61,6 +78,8 @@ export function SiteHeader({
   const isWorker =
     roles.includes("worker") || roles.includes("labour_contractor");
   const isBuyer = roles.includes("buyer") || roles.includes("retailer");
+  const hasWorkLinks =
+    isFarmer || isBuyer || isWorker || isProvider || isStaff;
 
   useEffect(() => {
     if (!open) return;
@@ -94,6 +113,7 @@ export function SiteHeader({
   }, [myWorkOpen, myWorkId]);
 
   const close = () => setOpen(false);
+  const closeWork = () => setMyWorkOpen(false);
 
   const primary = (
     <>
@@ -117,10 +137,7 @@ export function SiteHeader({
   );
 
   const marketplace = (
-    <>
-      <p className="px-3 pt-2 text-xs font-medium uppercase tracking-wide text-muted">
-        {copy.navMarketplace}
-      </p>
+    <MenuSection label={copy.navMarketplace}>
       <NavLink href="/services" onClick={close}>
         {copy.modules.farmServices.title}
       </NavLink>
@@ -136,103 +153,153 @@ export function SiteHeader({
       <NavLink href="/agri-mitra" onClick={close}>
         {copy.agriMitra}
       </NavLink>
-    </>
+    </MenuSection>
   );
 
-  const accountLinks = (
-    <>
-      <NavLink href="/notifications" onClick={close}>
-        {copy.notifications}
-        <UnreadBadge count={unreadNotifications} />
-      </NavLink>
-      <NavLink href="/bookings" onClick={close}>
-        {copy.bookings}
-      </NavLink>
-      {isFarmer ? (
-        <>
-          <NavLink href="/farmer/jobs" onClick={close}>
-            {copy.myJobs}
+  function workMenu(onNavigate: () => void, blockLinks = false) {
+    const linkClass = blockLinks ? "block" : "";
+    return (
+      <>
+        <MenuSection label={copy.menuOverview}>
+          <NavLink href="/profile" onClick={onNavigate} className={linkClass}>
+            {copy.navProfile}
           </NavLink>
-          <NavLink href="/seller/crops" onClick={close}>
-            {copy.myCrops}
-          </NavLink>
-        </>
-      ) : null}
-      {isFarmer || isBuyer ? (
-        <NavLink href="/buyer/deals" onClick={close}>
-          {copy.cropDeals}
-        </NavLink>
-      ) : null}
-      {isBuyer ? (
-        <>
-          <NavLink href="/buyer/requirements" onClick={close}>
-            {copy.myRequirements}
-          </NavLink>
-          <NavLink href="/buyer/profile" onClick={close}>
-            {copy.buyerProfile}
-          </NavLink>
-        </>
-      ) : null}
-      {isWorker ? (
-        <>
-          <NavLink href="/worker/applications" onClick={close}>
-            {copy.applications}
-          </NavLink>
-          <NavLink href="/worker/profile" onClick={close}>
-            {copy.workerProfile}
-          </NavLink>
-        </>
-      ) : null}
-      {isProvider ? (
-        <>
-          <NavLink href="/provider/listings" onClick={close}>
-            {copy.myListings}
-          </NavLink>
-          <NavLink href="/provider/bookings" onClick={close}>
-            {copy.providerBookings}
-          </NavLink>
-          <NavLink href="/provider/profile" onClick={close}>
-            {copy.providerProfile}
-          </NavLink>
-        </>
-      ) : null}
-      {isStaff ? (
-        <NavLink href="/admin" onClick={close}>
-          {copy.admin}
-        </NavLink>
-      ) : null}
-      <NavLink href="/onboarding/roles" onClick={close}>
-        {copy.roles}
-      </NavLink>
-    </>
-  );
+        </MenuSection>
 
-  const account = email ? (
-    <>
-      <p className="px-3 pt-2 text-xs font-medium uppercase tracking-wide text-muted">
-        {copy.navAccount}
-      </p>
-      {accountLinks}
-      <form action={signOut} className="px-3 pt-2">
-        <button
-          type="submit"
-          className="min-h-11 w-full rounded-lg border border-border px-3 py-2 text-left text-sm hover:bg-accent-soft"
-        >
-          {copy.signOut}
-        </button>
-      </form>
-    </>
-  ) : (
-    <div className="px-3 pt-2">
-      <Link
-        href="/login"
-        onClick={close}
-        className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-accent px-3 py-2.5 text-sm font-medium text-white hover:bg-accent-strong"
-      >
-        {copy.signIn}
-      </Link>
-    </div>
-  );
+        <MenuSection label={copy.menuActivity}>
+          <NavLink
+            href="/notifications"
+            onClick={onNavigate}
+            className={linkClass}
+          >
+            {copy.notifications}
+            <UnreadBadge count={unreadNotifications} />
+          </NavLink>
+          <NavLink href="/bookings" onClick={onNavigate} className={linkClass}>
+            {copy.bookings}
+          </NavLink>
+        </MenuSection>
+
+        {hasWorkLinks ? (
+          <MenuSection label={copy.menuYourWork}>
+            {isFarmer ? (
+              <>
+                <NavLink
+                  href="/farmer/jobs"
+                  onClick={onNavigate}
+                  className={linkClass}
+                >
+                  {copy.myJobs}
+                </NavLink>
+                <NavLink
+                  href="/seller/crops"
+                  onClick={onNavigate}
+                  className={linkClass}
+                >
+                  {copy.myCrops}
+                </NavLink>
+              </>
+            ) : null}
+            {isFarmer || isBuyer ? (
+              <NavLink
+                href="/buyer/deals"
+                onClick={onNavigate}
+                className={linkClass}
+              >
+                {copy.cropDeals}
+              </NavLink>
+            ) : null}
+            {isBuyer ? (
+              <NavLink
+                href="/buyer/requirements"
+                onClick={onNavigate}
+                className={linkClass}
+              >
+                {copy.myRequirements}
+              </NavLink>
+            ) : null}
+            {isWorker ? (
+              <NavLink
+                href="/worker/applications"
+                onClick={onNavigate}
+                className={linkClass}
+              >
+                {copy.applications}
+              </NavLink>
+            ) : null}
+            {isProvider ? (
+              <>
+                <NavLink
+                  href="/provider/listings"
+                  onClick={onNavigate}
+                  className={linkClass}
+                >
+                  {copy.myListings}
+                </NavLink>
+                <NavLink
+                  href="/provider/bookings"
+                  onClick={onNavigate}
+                  className={linkClass}
+                >
+                  {copy.providerBookings}
+                </NavLink>
+              </>
+            ) : null}
+            {isStaff ? (
+              <NavLink href="/admin" onClick={onNavigate} className={linkClass}>
+                {copy.admin}
+              </NavLink>
+            ) : null}
+          </MenuSection>
+        ) : null}
+
+        <MenuSection label={copy.menuSettings}>
+          {isBuyer ? (
+            <NavLink
+              href="/buyer/profile"
+              onClick={onNavigate}
+              className={linkClass}
+            >
+              {copy.buyerProfile}
+            </NavLink>
+          ) : null}
+          {isWorker ? (
+            <NavLink
+              href="/worker/profile"
+              onClick={onNavigate}
+              className={linkClass}
+            >
+              {copy.workerProfile}
+            </NavLink>
+          ) : null}
+          {isProvider ? (
+            <NavLink
+              href="/provider/profile"
+              onClick={onNavigate}
+              className={linkClass}
+            >
+              {copy.providerProfile}
+            </NavLink>
+          ) : null}
+          <NavLink
+            href="/onboarding/roles"
+            onClick={onNavigate}
+            className={linkClass}
+          >
+            {copy.roles}
+          </NavLink>
+          <form action={signOut} className="px-1 pt-1">
+            <button
+              type="submit"
+              className="min-h-11 w-full rounded-lg border border-border px-3 py-2 text-left text-sm hover:bg-accent-soft"
+            >
+              {copy.signOut}
+            </button>
+          </form>
+        </MenuSection>
+      </>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white">
@@ -278,7 +345,6 @@ export function SiteHeader({
         </div>
       </div>
 
-      {/* Desktop: main app nav only — marketplace via Explore */}
       <div className="hidden border-t border-border lg:block">
         <nav className="mx-auto flex w-full max-w-[var(--content-max)] items-center gap-1 px-4 py-2 sm:px-6 lg:px-8 xl:px-10">
           <NavLink href="/">{copy.navHome}</NavLink>
@@ -300,142 +366,9 @@ export function SiteHeader({
               {myWorkOpen ? (
                 <div
                   id={`${myWorkId}-panel`}
-                  className="absolute left-0 top-full z-50 mt-1 w-64 rounded-2xl border border-border bg-white p-2 shadow-lg"
+                  className="absolute left-0 top-full z-50 mt-1 max-h-[min(28rem,70vh)] w-72 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-lg"
                 >
-                  <NavLink
-                    href="/profile"
-                    onClick={() => setMyWorkOpen(false)}
-                    className="block"
-                  >
-                    {copy.navProfile}
-                  </NavLink>
-                  <NavLink
-                    href="/notifications"
-                    onClick={() => setMyWorkOpen(false)}
-                    className="block"
-                  >
-                    {copy.notifications}
-                    <UnreadBadge count={unreadNotifications} />
-                  </NavLink>
-                  <NavLink
-                    href="/bookings"
-                    onClick={() => setMyWorkOpen(false)}
-                    className="block"
-                  >
-                    {copy.bookings}
-                  </NavLink>
-                  {isFarmer ? (
-                    <>
-                      <NavLink
-                        href="/farmer/jobs"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.myJobs}
-                      </NavLink>
-                      <NavLink
-                        href="/seller/crops"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.myCrops}
-                      </NavLink>
-                    </>
-                  ) : null}
-                  {isFarmer || isBuyer ? (
-                    <NavLink
-                      href="/buyer/deals"
-                      onClick={() => setMyWorkOpen(false)}
-                      className="block"
-                    >
-                      {copy.cropDeals}
-                    </NavLink>
-                  ) : null}
-                  {isBuyer ? (
-                    <>
-                      <NavLink
-                        href="/buyer/requirements"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.myRequirements}
-                      </NavLink>
-                      <NavLink
-                        href="/buyer/profile"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.buyerProfile}
-                      </NavLink>
-                    </>
-                  ) : null}
-                  {isWorker ? (
-                    <>
-                      <NavLink
-                        href="/worker/applications"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.applications}
-                      </NavLink>
-                      <NavLink
-                        href="/worker/profile"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.workerProfile}
-                      </NavLink>
-                    </>
-                  ) : null}
-                  {isProvider ? (
-                    <>
-                      <NavLink
-                        href="/provider/listings"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.myListings}
-                      </NavLink>
-                      <NavLink
-                        href="/provider/bookings"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.providerBookings}
-                      </NavLink>
-                      <NavLink
-                        href="/provider/profile"
-                        onClick={() => setMyWorkOpen(false)}
-                        className="block"
-                      >
-                        {copy.providerProfile}
-                      </NavLink>
-                    </>
-                  ) : null}
-                  {isStaff ? (
-                    <NavLink
-                      href="/admin"
-                      onClick={() => setMyWorkOpen(false)}
-                      className="block"
-                    >
-                      {copy.admin}
-                    </NavLink>
-                  ) : null}
-                  <NavLink
-                    href="/onboarding/roles"
-                    onClick={() => setMyWorkOpen(false)}
-                    className="block"
-                  >
-                    {copy.roles}
-                  </NavLink>
-                  <form action={signOut} className="px-1 pt-1">
-                    <button
-                      type="submit"
-                      className="w-full rounded-lg border border-border px-3 py-2 text-left text-sm hover:bg-accent-soft"
-                    >
-                      {copy.signOut}
-                    </button>
-                  </form>
+                  {workMenu(closeWork, true)}
                 </div>
               ) : null}
             </div>
@@ -477,9 +410,21 @@ export function SiteHeader({
               </button>
             </div>
             <nav className="flex flex-col gap-0.5 py-3 pb-24">
-              {primary}
+              <MenuSection label={copy.menuMain}>{primary}</MenuSection>
               {marketplace}
-              {account}
+              {email ? (
+                workMenu(close)
+              ) : (
+                <div className="px-3 pt-2">
+                  <Link
+                    href="/login"
+                    onClick={close}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-accent px-3 py-2.5 text-sm font-medium text-white hover:bg-accent-strong"
+                  >
+                    {copy.signIn}
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         </div>

@@ -234,7 +234,7 @@ export default function ProfilePage({
   searchParams: Promise<{ welcome?: string }>;
 }) {
   return (
-    <Suspense fallback={<PageFallback title="My account" />}>
+    <Suspense fallback={<PageFallback title="My work" />}>
       <ProfileContent searchParams={searchParams} />
     </Suspense>
   );

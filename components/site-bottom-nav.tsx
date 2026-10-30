@@ -34,48 +34,83 @@ function NavItem({
   );
 }
 
-function BottomNavInner({ signedIn = false }: SiteBottomNavProps) {
-  const pathname = usePathname();
-  const { copy } = useLocale();
+function CreateFab({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="-mt-3 flex min-w-0 flex-1 flex-col items-center justify-end gap-0.5 px-1 text-center"
+      aria-label={label}
+    >
+      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent text-2xl font-semibold leading-none text-white shadow-md hover:bg-accent-strong">
+        +
+      </span>
+      <span className="line-clamp-1 w-full text-[11px] font-medium text-accent-strong sm:text-xs">
+        {label}
+      </span>
+    </Link>
+  );
+}
 
-  const items = [
-    { href: "/", label: copy.navHome, match: (path: string) => path === "/" },
+function useMarketplaceItems(signedIn: boolean) {
+  const { copy } = useLocale();
+  const createHref = signedIn ? "/create" : "/login?next=/create";
+  return [
     {
       href: "/explore",
       label: copy.navExplore,
-      match: (path: string) => path.startsWith("/explore"),
+      match: (path: string) => path.startsWith("/explore") || path === "/",
+      kind: "link" as const,
     },
     {
-      href: signedIn ? "/create" : "/login?next=/create",
+      href: "/services",
+      label: copy.navServices,
+      match: (path: string) => path.startsWith("/services"),
+      kind: "link" as const,
+    },
+    {
+      href: createHref,
       label: copy.navCreate,
       match: (path: string) => path.startsWith("/create"),
+      kind: "create" as const,
     },
     {
-      href: signedIn ? "/messages" : "/login?next=/messages",
-      label: copy.navMessages,
-      match: (path: string) => path.startsWith("/messages"),
+      href: "/crops",
+      label: copy.navSell,
+      match: (path: string) => path.startsWith("/crops"),
+      kind: "link" as const,
     },
     {
-      href: signedIn ? "/profile" : "/login?next=/profile",
-      label: copy.navProfile,
-      match: (path: string) => path.startsWith("/profile"),
+      href: "/agri-mitra",
+      label: copy.navAgriMitraShort,
+      match: (path: string) => path.startsWith("/agri-mitra"),
+      kind: "link" as const,
     },
   ];
+}
+
+function BottomNavInner({ signedIn = false }: SiteBottomNavProps) {
+  const pathname = usePathname();
+  const { copy } = useLocale();
+  const items = useMarketplaceItems(signedIn);
 
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
-      aria-label={copy.navHome}
+      aria-label={copy.navMarketplace}
     >
       <div className="mx-auto flex w-full max-w-[var(--content-max)] items-stretch">
-        {items.map((item) => (
-          <NavItem
-            key={item.label}
-            href={item.href}
-            label={item.label}
-            active={item.match(pathname)}
-          />
-        ))}
+        {items.map((item) =>
+          item.kind === "create" ? (
+            <CreateFab key={item.href} href={item.href} label={item.label} />
+          ) : (
+            <NavItem
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              active={item.match(pathname)}
+            />
+          ),
+        )}
       </div>
     </nav>
   );
@@ -83,37 +118,26 @@ function BottomNavInner({ signedIn = false }: SiteBottomNavProps) {
 
 function BottomNavFallback({ signedIn = false }: SiteBottomNavProps) {
   const { copy } = useLocale();
-  const items = [
-    { href: "/", label: copy.navHome },
-    { href: "/explore", label: copy.navExplore },
-    {
-      href: signedIn ? "/create" : "/login?next=/create",
-      label: copy.navCreate,
-    },
-    {
-      href: signedIn ? "/messages" : "/login?next=/messages",
-      label: copy.navMessages,
-    },
-    {
-      href: signedIn ? "/profile" : "/login?next=/profile",
-      label: copy.navProfile,
-    },
-  ];
+  const items = useMarketplaceItems(signedIn);
 
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
-      aria-label={copy.navHome}
+      aria-label={copy.navMarketplace}
     >
       <div className="mx-auto flex w-full max-w-[var(--content-max)] items-stretch">
-        {items.map((item) => (
-          <NavItem
-            key={item.label}
-            href={item.href}
-            label={item.label}
-            active={false}
-          />
-        ))}
+        {items.map((item) =>
+          item.kind === "create" ? (
+            <CreateFab key={item.href} href={item.href} label={item.label} />
+          ) : (
+            <NavItem
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              active={false}
+            />
+          ),
+        )}
       </div>
     </nav>
   );
