@@ -1,17 +1,42 @@
 @import "tailwindcss";
 
+/* Scan Stitch HTML string modules so utilities are generated. */
+@source "../lib/stitch/**/*.ts";
+@source "../public/stitch/**/*.html";
+
 :root {
-  --background: #f7f8f2;
-  --foreground: #263629;
-  --surface: #ffffff;
-  --muted: #657363;
-  --border: #e3e5dc;
-  --accent: #246b38;
-  --accent-strong: #1b522a;
-  --accent-soft: #e8f0e5;
+  --background: #fbfbf9;
+  --foreground: #121c2a;
+  --surface: #f8f9ff;
+  --muted: #40493d;
+  --border: #e5e7eb;
+  --accent: #0d631b;
+  --accent-strong: #1b5e20;
+  --accent-soft: #e8f5e9;
+  --primary: #0d631b;
+  --primary-container: #2e7d32;
+  --on-primary: #ffffff;
+  --on-primary-container: #cbffc2;
+  --secondary: #964900;
+  --secondary-container: #fe851f;
+  --on-secondary: #ffffff;
+  --on-secondary-container: #612d00;
+  --secondary-fixed: #ffdcc7;
+  --on-secondary-fixed: #311300;
+  --on-secondary-fixed-variant: #723600;
+  --tertiary: #993300;
+  --tertiary-container: #c24300;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eff4ff;
+  --surface-container: #e6eeff;
+  --surface-tint: #1b6d24;
+  --on-surface: #121c2a;
+  --on-surface-variant: #40493d;
+  --outline: #707a6c;
+  --outline-variant: #bfcaba;
+  --inverse-surface: #27313f;
   --radius-card: 1rem;
-  /* Wider than Tailwind 7xl so desktop does not feel “shrunk”. */
-  --content-max: 96rem;
+  --content-max: 80rem;
 }
 
 @theme inline {
@@ -23,7 +48,38 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-geist-sans);
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-secondary: var(--secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary: var(--on-secondary);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-tint: var(--surface-tint);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-surface-container-high: #dee9fc;
+  --color-surface-container-highest: #d9e3f6;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-dim: #d0dbed;
+  --color-surface-variant: #d9e3f6;
+  --color-on-background: #121c2a;
+  --color-inverse-on-surface: #eaf1ff;
+  --color-inverse-primary: #88d982;
+  --font-sans: var(--font-inter), "Segoe UI", sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -35,9 +91,118 @@ html {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   min-height: 100vh;
   overflow-x: clip;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.material-symbols-outlined.fill {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Stitch typography utilities (from DESIGN.md / code.html) */
+.font-display-hero,
+.font-display-hero-mobile,
+.font-headline-lg,
+.font-headline-lg-mobile,
+.font-headline-md,
+.font-headline-sm,
+.font-title-md {
+  font-family: var(--font-display);
+}
+.font-body-lg,
+.font-body-md,
+.font-body-sm,
+.font-label-lg,
+.font-label-md,
+.font-label-sm {
+  font-family: var(--font-sans);
+}
+.text-display-hero {
+  font-size: 44px;
+  line-height: 52px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+.text-display-hero-mobile {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+.text-headline-lg {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+.text-headline-lg-mobile {
+  font-size: 26px;
+  line-height: 34px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+.text-headline-md {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+.text-headline-sm {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+.text-title-md {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.text-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+}
+.text-body-md {
+  font-size: 14px;
+  line-height: 20px;
+}
+.text-body-sm {
+  font-size: 12px;
+  line-height: 18px;
+}
+.text-label-lg {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+.text-label-md {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+.text-label-sm {
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
 }
 
 @layer base {
@@ -53,7 +218,6 @@ body {
     font: inherit;
   }
 
-  /* Avoid accidental horizontal page scroll on small phones. */
   img,
   video,
   canvas,
@@ -62,7 +226,6 @@ body {
   }
 }
 
-/* Accessible summary marker reset for filter drawers */
 details > summary::-webkit-details-marker {
   display: none;
 }

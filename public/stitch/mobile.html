@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>AllFarmNeeds - Digital Agri Marketplace</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Play CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-fixed-dim": "#ffb787",
+            "on-tertiary-container": "#ffeee8",
+            "surface-container-high": "#dee9fc",
+            "surface-dim": "#d0dbed",
+            "on-secondary-fixed": "#311300",
+            "inverse-surface": "#27313f",
+            "secondary-container": "#fe851f",
+            "error": "#ba1a1a",
+            "primary-fixed": "#a3f69c",
+            "primary-container": "#2e7d32",
+            "on-background": "#121c2a",
+            "surface-tint": "#1b6d24",
+            "primary": "#0d631b",
+            "on-surface-variant": "#40493d",
+            "secondary-fixed": "#ffdcc7",
+            "on-secondary-container": "#612d00",
+            "background": "#f8f9ff",
+            "on-primary-fixed-variant": "#005312",
+            "on-primary-fixed": "#002204",
+            "tertiary-container": "#c24300",
+            "on-error-container": "#93000a",
+            "outline": "#707a6c",
+            "on-primary-container": "#cbffc2",
+            "on-tertiary": "#ffffff",
+            "surface-container": "#e6eeff",
+            "on-secondary": "#ffffff",
+            "on-tertiary-fixed-variant": "#802a00",
+            "inverse-primary": "#88d982",
+            "tertiary-fixed": "#ffdbcf",
+            "surface-container-lowest": "#ffffff",
+            "on-primary": "#ffffff",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#eaf1ff",
+            "tertiary-fixed-dim": "#ffb59a",
+            "on-tertiary-fixed": "#380d00",
+            "surface-container-low": "#eff4ff",
+            "outline-variant": "#bfcaba",
+            "surface-variant": "#d9e3f6",
+            "tertiary": "#993300",
+            "surface": "#f8f9ff",
+            "secondary": "#964900",
+            "on-surface": "#121c2a",
+            "surface-container-highest": "#d9e3f6",
+            "primary-fixed-dim": "#88d982",
+            "on-secondary-fixed-variant": "#723600",
+            "surface-bright": "#f8f9ff",
+            "on-error": "#ffffff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-mobile": "1rem",
+            "gutter-mobile": "1rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem",
+            "margin": "2rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "gutter": "1.5rem",
+            "space-lg": "1.5rem"
+          },
+          "fontFamily": {
+            "label-md": ["Inter"],
+            "label-lg": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "title-md": ["Plus Jakarta Sans"],
+            "display-hero-mobile": ["Plus Jakarta Sans"],
+            "body-sm": ["Inter"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "display-hero": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "display-hero-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "display-hero": ["44px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1;
+    }
+    body {
+      background-color: #E2E8F0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #mobile-canvas {
+      width: 100%;
+      max-width: 390px;
+      min-height: 100vh;
+      background-color: #FBFBF9;
+      position: relative;
+      overflow-x: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    /* Hide scrollbar for category pills horizontal row */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased text-on-surface">
+<!-- Mobile Viewport Container: 390px Max Width -->
+<div class="flex flex-col pb-24" id="mobile-canvas">
+<!-- Top App Bar (Docked full-width top-0 sticky) -->
+<header class="sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant/30 shadow-sm px-4 h-16 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="agriculture">agriculture</span>
+</div>
+<span class="font-headline-sm text-headline-sm font-bold text-primary tracking-tight">AllFarmNeeds</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Language Switcher Pill -->
+<button aria-label="Switch Language" class="flex items-center gap-1 bg-surface-container-low px-2.5 py-1.5 rounded-full border border-outline-variant/40 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="translate">translate</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">తెలుగు</span>
+</button>
+<!-- Menu / Profile button -->
+<button aria-label="Open Navigation Drawer" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest border border-outline-variant/40 text-on-surface-variant active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[22px]" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<!-- Sub-header Location Indicator Bar -->
+<div class="bg-surface-container-low px-4 py-2 flex items-center justify-between border-b border-outline-variant/20">
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Warangal &amp; Guntur</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-lowest px-2 py-0.5 rounded text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm font-semibold">Mandi Live</span>
+</div>
+</div>
+<!-- Main Scrollable Content -->
+<main class="flex-1 flex flex-col gap-6 pt-3">
+<!-- Hero Section with authentic farmer visual & search -->
+<section class="px-4">
+<!-- Visual Hero Card -->
+<div class="relative rounded-xl overflow-hidden shadow-sm border border-outline-variant/30 bg-inverse-surface aspect-[16/10] flex flex-col justify-end p-4">
+<img alt="AllFarmNeeds Farmer Partner" class="absolute inset-0 w-full h-full object-cover object-center opacity-85" data-alt="A warm, sunlit portrait of a smiling Indian farmer standing in a vibrant green agricultural field in Telangana with lush paddy and red chilli crops under golden hour sunlight, conveying prosperity, trust, and authentic agrarian life." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASkiCy_SnYuWVlVBOUcvWSJwR1G7TWM1Q6fvK3Qi7W6qL1ogqMq6e9Xks1NZVP5-H1NngjFJKp_5LyQNiCKRC83aqxiX1zZjInxsnlW-5iqae2hHctE8JPpcp65zcUNATsywH6dyVRX6PZcV8Hk_oM1T05FJyya3P2c-pDk-lvWbxn_vC-UsBOZfPQRciH5LwmdhTIYtK8P1cvNDJxNy2w3t74zxzTW295cUfn9kk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent"></div>
+<div class="relative z-10 text-white space-y-1">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary text-white font-label-sm text-label-sm font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-[12px]" data-icon="verified">verified</span>
+              AP &amp; Telangana Kisan Hub
+            </span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-white leading-tight font-bold">
+              Everything your farm needs, in one place.
+            </h1>
+<p class="font-body-sm text-body-sm text-surface-container-low font-normal">
+              ట్రాక్టర్లు, కోత యంత్రాలు, పంట అమ్మకాలు మరియు కూలీల సేవలు.
+            </p>
+</div>
+</div>
+<!-- Floating Elevated Search Input Box -->
+<div class="mt-3 bg-surface-container-lowest rounded-xl p-3 shadow-md border border-outline-variant/40 space-y-2.5">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[20px]" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low/60 text-on-surface placeholder:text-outline font-body-md text-body-md pl-10 pr-24 py-3 rounded-lg border-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" placeholder="Search tractors, chilli, harvesters, labour..." type="text"/>
+<button class="absolute right-1.5 px-4 h-9 bg-primary text-white rounded-md font-label-md text-label-md font-bold flex items-center justify-center active:scale-95 transition-transform shadow-sm">
+              Search
+            </button>
+</div>
+<!-- Quick Chips for Popular Searches -->
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 pb-0.5">
+<span class="font-label-sm text-label-sm text-outline shrink-0 font-medium">Trending:</span>
+<a class="shrink-0 px-2.5 py-1 bg-surface-container-low hover:bg-surface-container rounded-full text-on-surface font-label-sm text-label-sm border border-outline-variant/40" href="#">
+              🚜 Tractors
+            </a>
+<a class="shrink-0 px-2.5 py-1 bg-surface-container-low hover:bg-surface-container rounded-full text-on-surface font-label-sm text-label-sm border border-outline-variant/40" href="#">
+              🌶️ Teja Chilli
+            </a>
+<a class="shrink-0 px-2.5 py-1 bg-surface-container-low hover:bg-surface-container rounded-full text-on-surface font-label-sm text-label-sm border border-outline-variant/40" href="#">
+              🌾 Harvesters
+            </a>
+<a class="shrink-0 px-2.5 py-1 bg-surface-container-low hover:bg-surface-container rounded-full text-on-surface font-label-sm text-label-sm border border-outline-variant/40" href="#">
+              👥 Farm Labour
+            </a>
+</div>
+</div>
+</section>
+<!-- 4 Marketplace Categories: 2x2 Grid -->
+<section class="px-4 space-y-3">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md text-on-surface font-bold">Categories</h2>
+<span class="font-label-md text-label-md text-primary font-semibold">మార్కెట్ విభాగాలు</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<!-- Card 1: Farm Services -->
+<a class="group bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant/40 shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between h-36 active:scale-98" href="#">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="precision_manufacturing">precision_manufacturing</span>
+</div>
+<span class="font-label-sm text-label-sm bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">120+ Live</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold group-hover:text-primary">Farm Services</h3>
+<p class="font-body-sm text-body-sm text-outline truncate">Tractors, Drones &amp; Harvester</p>
+</div>
+</a>
+<!-- Card 2: Farm Jobs -->
+<a class="group bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant/40 shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between h-36 active:scale-98" href="#">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="groups">groups</span>
+</div>
+<span class="font-label-sm text-label-sm bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-bold">Urgent</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold group-hover:text-secondary">Farm Jobs</h3>
+<p class="font-body-sm text-body-sm text-outline truncate">Daily picking crews &amp; labour</p>
+</div>
+</a>
+<!-- Card 3: Sell Crops -->
+<a class="group bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant/40 shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between h-36 active:scale-98" href="#">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-tertiary group-hover:bg-tertiary-container group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="storefront">storefront</span>
+</div>
+<span class="font-label-sm text-label-sm bg-tertiary/10 text-tertiary px-1.5 py-0.5 rounded font-bold">Best Price</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold group-hover:text-tertiary">Sell Crops</h3>
+<p class="font-body-sm text-body-sm text-outline truncate">Teja Chilli, Paddy &amp; Cotton</p>
+</div>
+</a>
+<!-- Card 4: Purchase Needs -->
+<a class="group bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant/40 shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between h-36 active:scale-98" href="#">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]" data-icon="shopping_basket">shopping_basket</span>
+</div>
+<span class="font-label-sm text-label-sm bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">Bulk Deals</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface font-bold group-hover:text-primary">Purchase Needs</h3>
+<p class="font-body-sm text-body-sm text-outline truncate">Direct Mandi &amp; mill buyers</p>
+</div>
+</a>
+</div>
+</section>
+<!-- Agri Mitra Showcase Banner -->
+<section class="px-4">
+<div class="relative bg-gradient-to-br from-primary via-primary-container to-surface-tint rounded-xl p-4 text-white shadow-md overflow-hidden">
+<!-- Ambient decorative ring -->
+<div class="absolute -right-10 -bottom-10 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex items-start gap-3">
+<div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0 border border-white/30 shadow-inner">
+<span class="material-symbols-outlined text-[28px] text-white" data-icon="mic" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1.5">
+<span class="bg-secondary text-white font-label-sm text-label-sm px-2 py-0.5 rounded-full font-bold">AI Helper</span>
+<span class="font-label-sm text-label-sm text-white/80">వాయిస్ అసిస్టెంట్</span>
+</div>
+<h3 class="font-title-md text-title-md text-white font-bold leading-tight">
+                Agri Mitra Voice Assistant
+              </h3>
+<p class="font-body-sm text-body-sm text-white/90">
+                Ask in Telugu or English for today's Mandi rate, tractor rentals, or weather advisory.
+              </p>
+</div>
+</div>
+<div class="mt-3.5 pt-3 border-t border-white/20 flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-white/90">
+<span class="material-symbols-outlined text-[18px]" data-icon="graphic_eq">graphic_eq</span>
+<span class="font-label-sm text-label-sm font-medium">"వరంగల్ మిర్చి ధర ఎంత?"</span>
+</div>
+<button class="bg-white text-primary font-label-md text-label-md font-bold px-3 py-2 rounded-lg flex items-center gap-1 shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[16px]" data-icon="chat_bubble">chat_bubble</span>
+<span>Ask Mitra</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Featured Verified Listings -->
+<section class="px-4 space-y-3">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-title-md text-title-md text-on-surface font-bold">Verified Listings</h2>
+<p class="font-body-sm text-body-sm text-outline">తాజా నమ్మకమైన ప్రకటనలు</p>
+</div>
+<a class="font-label-md text-label-md text-primary font-bold flex items-center gap-0.5" href="#">
+            View All
+            <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</a>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Listing Card 1: Tractor Service -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/40 p-3 shadow-sm flex flex-col gap-2.5">
+<div class="flex gap-3">
+<div class="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container">
+<img alt="John Deere 5050D Tractor Rental" class="w-full h-full object-cover" data-alt="A modern green John Deere tractor with cultivator operating in rich fertile black soil agricultural fields under clear blue sky with rural hills in the background of Andhra Pradesh." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqx_Ljc6QePc03pLjmEZvgB1C2RS06lBLMkYf9GKPC12j90d8PLQCwCHfYmHN_qt8Ghd-fVfpbB8jr0EJnXm8lR8A_fyc-joZcowFcSbZHBUpxRgyF2o0h1Wxsmx_eDzyhVAIKfqAMh71zGo__RoKJVPEyx5kJxQqPP_zY_iFqmq5UOeqGLxNd2ewIa0WmcJHZIHRfWkulmglxFf8j2oklKkOZMG48Y9hUzBzbN4A"/>
+<span class="absolute top-1 left-1 bg-primary text-white font-label-sm text-[10px] px-1.5 py-0.2 rounded font-bold">
+                  Verified
+                </span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-1">
+<h3 class="font-title-md text-title-md text-on-surface font-bold truncate">John Deere 5050D (50 HP)</h3>
+</div>
+<p class="font-body-sm text-body-sm text-outline truncate flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="location_on">location_on</span>
+                    Khammam &amp; Suryapet
+                  </p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">
+                    With Rotavator &amp; Seed Drill
+                  </p>
+</div>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-title-md text-title-md text-primary font-bold">₹900</span>
+<span class="font-label-sm text-label-sm text-outline">/ hour (గం)</span>
+</div>
+</div>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-primary font-bold text-[10px]">
+                  VK
+                </div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium truncate max-w-[120px]">Venkatesh Rao</span>
+</div>
+<button class="bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-md font-label-md text-label-md font-bold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="call">call</span>
+<span>Contact</span>
+</button>
+</div>
+</div>
+<!-- Listing Card 2: Teja Chilli Lot (Direct from Farmer) -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/40 p-3 shadow-sm flex flex-col gap-2.5">
+<div class="flex gap-3">
+<div class="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container">
+<img alt="Guntur Teja Dry Chilli Lot" class="w-full h-full object-cover" data-alt="Premium bright red dry Guntur Teja chillies packed in clean burlap jute sacks at a rural Telangana farm market yard with happy farm worker examining the harvest quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgN52WP8K9E_GQJl69em8Fzxsvgb6B-6OdJrxrcyWy9i7kqsUsVh18AsLv9mhNB89_KadmutrA3U6KLiimUyNiN4vWQ4z34SUdS1vcYblWoWt71zU2efNH1U5jYqXi2F4UqBAdZUjSlzmeE9vXzQaHfumDvPWr1Lqb6BR1-n9bytDA1qFoaQrnQXudQ1KIJkOQT4hjOqTlNOSW_1criNqkVaFx2zjwBQuzmxlkTwY"/>
+<span class="absolute top-1 left-1 bg-tertiary text-white font-label-sm text-[10px] px-1.5 py-0.2 rounded font-bold">
+                  Mandi Grade
+                </span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between gap-1">
+<h3 class="font-title-md text-title-md text-on-surface font-bold truncate">Guntur Teja Dry Chilli</h3>
+</div>
+<p class="font-body-sm text-body-sm text-outline truncate flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary" data-icon="location_on">location_on</span>
+                    Enumamula Mandi, Warangal
+                  </p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">
+                    Lot: 45 Quintals Available
+                  </p>
+</div>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-title-md text-title-md text-tertiary font-bold">₹21,800</span>
+<span class="font-label-sm text-label-sm text-outline">/ Quintal (క్వింటా)</span>
+</div>
+</div>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<div class="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-tertiary font-bold text-[10px]">
+                  SR
+                </div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium truncate max-w-[120px]">Srinivas Reddy</span>
+</div>
+<button class="bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-md font-label-md text-label-md font-bold flex items-center gap-1.5 active:scale-95 transition-all shadow-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="call">call</span>
+<span>Contact</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- How it Works: 3 Clean Touch Steps -->
+<section class="px-4 py-2 space-y-3">
+<div class="bg-surface-container-low rounded-xl p-4 border border-outline-variant/30 space-y-3">
+<div class="text-center space-y-0.5">
+<h2 class="font-title-md text-title-md text-on-surface font-bold">How It Works</h2>
+<p class="font-body-sm text-body-sm text-outline">సులభంగా ఉపయోగించండి • 3 సులభమైన దశలు</p>
+</div>
+<div class="space-y-3">
+<!-- Step 1 -->
+<div class="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/20 shadow-xs">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center font-label-md shrink-0">
+                1
+              </div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Search or Post Requirement</h4>
+<p class="font-body-sm text-body-sm text-outline">Find equipment or list your harvested produce for free.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/20 shadow-xs">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center font-label-md shrink-0">
+                2
+              </div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Direct Farmer-to-Buyer Contact</h4>
+<p class="font-body-sm text-body-sm text-outline">Call or WhatsApp directly with zero middleman margin.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-lg border border-outline-variant/20 shadow-xs">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center font-label-md shrink-0">
+                3
+              </div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">Instant Deal &amp; Safe Harvest</h4>
+<p class="font-body-sm text-body-sm text-outline">Verify Mandi gate passes and lock in fair local prices.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust & Kisan Safety Banner -->
+<section class="px-4">
+<div class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-3.5 flex items-center gap-3 shadow-xs">
+<div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]" data-icon="shield" style="font-variation-settings: 'FILL' 1;">shield</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface">100% Kisan Verified Guarantee</h4>
+<p class="font-body-sm text-body-sm text-outline">Free helpline assistance for fair pricing and contract clarity.</p>
+</div>
+</div>
+</section>
+<!-- Post Your Listing Callout Card -->
+<section class="px-4">
+<div class="bg-secondary-fixed text-on-secondary-fixed p-4 rounded-xl border border-secondary/30 flex items-center justify-between">
+<div class="space-y-0.5">
+<h3 class="font-title-md text-title-md font-bold">Have equipment or crops to sell?</h3>
+<p class="font-body-sm text-body-sm text-on-secondary-fixed-variant">Reach 45,000+ local farmers today.</p>
+</div>
+<button class="bg-secondary text-white font-label-md text-label-md font-bold px-3 py-2.5 rounded-lg shrink-0 shadow-sm active:scale-95 transition-transform">
+            Post Free Ad
+          </button>
+</div>
+</section>
+</main>
+<!-- Compact Mobile Footer with Shared Component JSON Compliance -->
+<footer class="mt-8 bg-surface-container-low border-t border-outline-variant/30 px-4 py-8 space-y-4">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">AllFarmNeeds</span>
+<span class="font-label-sm text-label-sm bg-surface-container-lowest px-2 py-1 rounded text-outline border border-outline-variant/30">
+          ISO 9001 Agri Portal
+        </span>
+</div>
+<!-- Helpline highlight -->
+<div class="bg-surface-container-lowest rounded-lg p-3 border border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]" data-icon="support_agent">support_agent</span>
+<div>
+<p class="font-label-sm text-label-sm text-outline">Toll-free Kisan Helpline</p>
+<p class="font-label-lg text-label-lg font-bold text-on-surface">1800-120-FARM</p>
+</div>
+</div>
+<a class="px-3 py-1.5 bg-primary/10 text-primary font-label-sm text-label-sm font-bold rounded" href="tel:18001203276">
+          Call Now
+        </a>
+</div>
+<!-- Footer Quick Links -->
+<div class="grid grid-cols-2 gap-2 pt-2 text-on-surface-variant font-label-md text-label-md">
+<a class="hover:text-primary transition-colors py-1" href="#">About Us</a>
+<a class="hover:text-primary transition-colors py-1" href="#">Explore Marketplace</a>
+<a class="hover:text-primary transition-colors py-1" href="#">Tractor &amp; Harvester Services</a>
+<a class="hover:text-primary transition-colors py-1" href="#">Agri Mitra AI</a>
+<a class="hover:text-primary transition-colors py-1" href="#">Kisan Support</a>
+<a class="hover:text-primary transition-colors py-1" href="#">Privacy Policy</a>
+</div>
+<div class="pt-3 border-t border-outline-variant/20 text-center">
+<p class="font-body-sm text-body-sm text-outline">
+          © 2025 AllFarmNeeds. All rights reserved. Toll-free Kisan Helpline: 1800-120-FARM
+        </p>
+</div>
+</footer>
+<!-- Fixed Bottom Navigation Bar (Semantic Shell Mobile Optimized) -->
+<nav aria-label="Bottom Navigation" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-surface-container-lowest/95 backdrop-blur-md shadow-lg border-t border-outline-variant/30 z-50 px-2 py-1.5 flex justify-around items-center">
+<!-- Active Item: Explore -->
+<a aria-current="page" class="flex flex-col items-center justify-center py-1 px-2 text-primary font-semibold min-w-[56px] transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-label-sm text-[11px] mt-0.5 font-bold">Explore</span>
+</a>
+<!-- Inactive Item: Farm Services -->
+<a class="flex flex-col items-center justify-center py-1 px-2 text-on-surface-variant hover:text-primary min-w-[56px] transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="handyman">handyman</span>
+<span class="font-label-sm text-[11px] mt-0.5">Services</span>
+</a>
+<!-- Central Post Action FAB -->
+<a aria-label="Post an ad" class="flex flex-col items-center justify-center -mt-4 bg-primary text-white w-12 h-12 rounded-full shadow-md active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="add">add</span>
+</a>
+<!-- Inactive Item: Sell Crops -->
+<a class="flex flex-col items-center justify-center py-1 px-2 text-on-surface-variant hover:text-primary min-w-[56px] transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="store">store</span>
+<span class="font-label-sm text-[11px] mt-0.5">Sell Crops</span>
+</a>
+<!-- Inactive Item: Agri Mitra -->
+<a class="flex flex-col items-center justify-center py-1 px-2 text-on-surface-variant hover:text-primary min-w-[56px] transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]" data-icon="smart_toy">smart_toy</span>
+<span class="font-label-sm text-[11px] mt-0.5">Agri Mitra</span>
+</a>
+</nav>
+</div>
+</body></html>
