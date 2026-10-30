@@ -38,7 +38,7 @@ export function SiteHeader({
   roles = [],
   unreadNotifications = 0,
 }: SiteHeaderProps) {
-  const { copy } = useLocale();
+  const { copy, locationLabel, detecting } = useLocale();
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const isProvider = roles.includes("service_provider");
@@ -203,23 +203,25 @@ export function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <div className="min-w-0">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6 lg:px-8">
+        <div className="min-w-0 flex-1">
           <Link
             href="/"
             className="block truncate text-lg font-semibold tracking-tight text-accent-strong sm:text-xl"
           >
             AllFarmNeeds
           </Link>
-          <p className="hidden truncate text-xs text-muted sm:block">{copy.tagline}</p>
+          <p className="hidden truncate text-xs text-muted sm:block">
+            {copy.tagline}
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <LanguageSwitcher />
           {!email ? (
             <Link
               href="/login"
-              className="hidden rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-strong sm:inline-flex"
+              className="hidden min-h-9 items-center rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-strong md:inline-flex"
             >
               {copy.signIn}
             </Link>
@@ -289,11 +291,20 @@ export function SiteHeader({
             id={menuId}
             className="absolute right-0 top-0 flex h-full w-[min(100%,20rem)] flex-col overflow-y-auto border-l border-border bg-white shadow-lg"
           >
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <p className="font-semibold text-accent-strong">Menu</p>
+            <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+              <div className="min-w-0">
+                <p className="font-semibold text-accent-strong">Menu</p>
+                <p className="truncate text-xs text-muted">
+                  {detecting
+                    ? copy.detectingLocation
+                    : locationLabel
+                      ? `${copy.nearYou}: ${locationLabel}`
+                      : copy.locationUnknown}
+                </p>
+              </div>
               <button
                 type="button"
-                className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-accent-soft"
+                className="min-h-10 shrink-0 rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-accent-soft"
                 onClick={close}
               >
                 Close

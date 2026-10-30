@@ -198,6 +198,7 @@ Do **not** advertise unfinished cloud voice or email as complete.
 | Jobs / Crops / Buyers: FilterPanel + ListingCard grids | Done |
 | Messages: EmptyState + StatusBadge + TE strings | Done |
 | Agri Mitra: mobile tap targets + honest mic hint | Done |
+| Homepage responsive (320–1920), no horizontal overflow | Done — see `docs/screenshots/homepage/` |
 
 ## 10. Verdict
 

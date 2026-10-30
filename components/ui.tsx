@@ -13,18 +13,22 @@ export function PageShell({
   actions?: ReactNode;
 }) {
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-accent-strong sm:text-3xl">
+    <main className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div className="mb-6 flex flex-col gap-4 sm:mb-8 md:flex-row md:flex-wrap md:items-end md:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-accent-strong break-words sm:text-3xl">
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-2 max-w-2xl text-sm text-muted sm:text-base">{subtitle}</p>
+            <p className="mt-2 max-w-2xl break-words text-sm text-muted sm:text-base">
+              {subtitle}
+            </p>
           ) : null}
         </div>
         {actions ? (
-          <div className="flex flex-wrap gap-2 sm:justify-end">{actions}</div>
+          <div className="flex w-full min-w-0 shrink-0 flex-col gap-2 md:w-auto md:flex-row md:flex-wrap md:justify-end">
+            {actions}
+          </div>
         ) : null}
       </div>
       {children}

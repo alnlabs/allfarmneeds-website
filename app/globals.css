@@ -27,6 +27,7 @@
 
 html {
   background-color: var(--background);
+  overflow-x: clip;
 }
 
 body {
@@ -34,6 +35,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 @layer base {
