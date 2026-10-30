@@ -12,6 +12,12 @@ type District = { id: number; name: string; label?: string };
 type Mandal = { id: number; name: string; district_id: number };
 type Village = { id: number; name: string; mandal_id: number };
 
+function asId(value: number | string | null | undefined): number | null {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 export function RolesForm({
   displayName,
   roles,
@@ -34,25 +40,68 @@ export function RolesForm({
   const { copy } = useLocale();
   const [state, action, pending] = useActionState(saveRoles, initialState);
   const [isFarmer, setIsFarmer] = useState(roles.includes("farmer"));
-  const initialVillage = villages.find((v) => v.id === farmerVillageId);
-  const initialMandal = mandals.find((m) => m.id === initialVillage?.mandal_id);
-  const [districtId, setDistrictId] = useState(
-    initialMandal?.district_id ??
-      districts.find((d) => d.name === "Rangareddy")?.id ??
-      districts[0]?.id ??
-      0,
-  );
+
+  const savedVillageId = asId(farmerVillageId);
+  const initialVillage = savedVillageId
+    ? villages.find((v) => asId(v.id) === savedVillageId)
+    : undefined;
+  const initialMandal = initialVillage
+    ? mandals.find((m) => asId(m.id) === asId(initialVillage.mandal_id))
+    : undefined;
+  const defaultDistrictId =
+    asId(initialMandal?.district_id) ??
+    asId(districts.find((d) => d.name === "Rangareddy")?.id) ??
+    asId(districts[0]?.id) ??
+    0;
+
+  const [districtId, setDistrictId] = useState(defaultDistrictId);
+
   const filteredMandals = useMemo(
-    () => mandals.filter((m) => m.district_id === districtId),
+    () => mandals.filter((m) => asId(m.district_id) === districtId),
     [mandals, districtId],
   );
-  const [mandalId, setMandalId] = useState(
-    initialMandal?.id ?? filteredMandals[0]?.id ?? 0,
-  );
+
+  const defaultMandalId =
+    asId(initialMandal?.id) &&
+    filteredMandals.some((m) => asId(m.id) === asId(initialMandal?.id))
+      ? asId(initialMandal?.id)!
+      : (asId(filteredMandals[0]?.id) ?? 0);
+
+  const [mandalId, setMandalId] = useState(defaultMandalId);
+
   const filteredVillages = useMemo(
-    () => villages.filter((v) => v.mandal_id === mandalId),
+    () => villages.filter((v) => asId(v.mandal_id) === mandalId),
     [villages, mandalId],
   );
+
+  const defaultVillageId =
+    savedVillageId &&
+    filteredVillages.some((v) => asId(v.id) === savedVillageId)
+      ? savedVillageId
+      : (asId(filteredVillages[0]?.id) ?? 0);
+
+  const [villageId, setVillageId] = useState(defaultVillageId);
+
+  function selectDistrict(nextDistrict: number) {
+    setDistrictId(nextDistrict);
+    const nextMandals = mandals.filter(
+      (m) => asId(m.district_id) === nextDistrict,
+    );
+    const nextMandal = asId(nextMandals[0]?.id) ?? 0;
+    setMandalId(nextMandal);
+    const nextVillages = villages.filter(
+      (v) => asId(v.mandal_id) === nextMandal,
+    );
+    setVillageId(asId(nextVillages[0]?.id) ?? 0);
+  }
+
+  function selectMandal(nextMandal: number) {
+    setMandalId(nextMandal);
+    const nextVillages = villages.filter(
+      (v) => asId(v.mandal_id) === nextMandal,
+    );
+    setVillageId(asId(nextVillages[0]?.id) ?? 0);
+  }
 
   return (
     <form action={action} className="space-y-5">
@@ -124,14 +173,8 @@ export function RolesForm({
           <p className="text-sm font-medium">{copy.farmerLocation}</p>
           <Field label={copy.district}>
             <Select
-              value={districtId}
-              onChange={(event) => {
-                const nextDistrict = Number(event.target.value);
-                setDistrictId(nextDistrict);
-                const nextMandal =
-                  mandals.find((m) => m.district_id === nextDistrict)?.id ?? 0;
-                setMandalId(nextMandal);
-              }}
+              value={districtId || ""}
+              onChange={(event) => selectDistrict(Number(event.target.value))}
             >
               {districts.map((district) => (
                 <option key={district.id} value={district.id}>
@@ -142,9 +185,12 @@ export function RolesForm({
           </Field>
           <Field label={copy.mandal}>
             <Select
-              value={mandalId}
-              onChange={(event) => setMandalId(Number(event.target.value))}
+              value={mandalId || ""}
+              onChange={(event) => selectMandal(Number(event.target.value))}
             >
+              {filteredMandals.length === 0 ? (
+                <option value="">{copy.selectMandalFirst}</option>
+              ) : null}
               {filteredMandals.map((mandal) => (
                 <option key={mandal.id} value={mandal.id}>
                   {mandal.name}
@@ -154,8 +200,11 @@ export function RolesForm({
           </Field>
           <Field label={copy.village}>
             <Select
+              key={mandalId}
               name="village_id"
-              defaultValue={farmerVillageId ?? filteredVillages[0]?.id ?? ""}
+              value={villageId || ""}
+              onChange={(event) => setVillageId(Number(event.target.value) || 0)}
+              required
             >
               <option value="">{copy.selectLocation}</option>
               {filteredVillages.map((village) => (
