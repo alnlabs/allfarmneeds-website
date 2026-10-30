@@ -34,7 +34,6 @@ async function ServicesResults({
   const copy = t(locale);
   const supabase = await createClient();
 
-  let villageIdsInDistrict: number[] = [];
   let mandalIdsInDistrict: number[] = [];
   let villageIdsInMandal: number[] = [];
 
@@ -44,14 +43,6 @@ async function ServicesResults({
       .select("id")
       .eq("district_id", districtId);
     mandalIdsInDistrict = (mandals ?? []).map((mandal) => mandal.id);
-
-    if (mandalIdsInDistrict.length > 0) {
-      const { data: villages } = await supabase
-        .from("villages")
-        .select("id")
-        .in("mandal_id", mandalIdsInDistrict);
-      villageIdsInDistrict = (villages ?? []).map((village) => village.id);
-    }
   }
 
   if (mandalId) {
@@ -84,8 +75,8 @@ async function ServicesResults({
         mandal_id,
         village_id,
         districts(name),
-        mandals(name),
-        villages(name)
+        mandals(name, district_id),
+        villages(name, mandal_id, mandals(district_id))
       )
     `,
     )
@@ -149,14 +140,28 @@ async function ServicesResults({
       return true;
     }
 
-    return areas.some(
-      (area) =>
-        area.district_id === districtId ||
-        (area.mandal_id != null &&
-          mandalIdsInDistrict.includes(area.mandal_id)) ||
-        (area.village_id != null &&
-          villageIdsInDistrict.includes(area.village_id)),
-    );
+    return areas.some((area) => {
+      if (area.district_id === districtId) return true;
+      if (
+        area.mandal_id != null &&
+        mandalIdsInDistrict.includes(area.mandal_id)
+      ) {
+        return true;
+      }
+      const village = Array.isArray(area.villages)
+        ? area.villages[0]
+        : area.villages;
+      const villageMandal = village
+        ? Array.isArray(village.mandals)
+          ? village.mandals[0]
+          : village.mandals
+        : null;
+      if (villageMandal?.district_id === districtId) return true;
+      const mandal = Array.isArray(area.mandals)
+        ? area.mandals[0]
+        : area.mandals;
+      return mandal?.district_id === districtId;
+    });
   });
 
   if (filtered.length === 0) {
@@ -259,7 +264,7 @@ async function ServicesPageContent({
   const copy = t(locale);
 
   const supabase = await createClient();
-  const [{ data: categories }, { data: districts }, { data: mandals }, { data: villages }] =
+  const [{ data: categories }, { data: districts }, { data: mandals }, villagesResult] =
     await Promise.all([
       supabase
         .from("service_categories")
@@ -270,9 +275,29 @@ async function ServicesPageContent({
         .select("id, name, states!inner(name)")
         .in("states.name", ["Telangana", "Andhra Pradesh"])
         .order("name"),
-      supabase.from("mandals").select("id, name, district_id").order("name"),
-      supabase.from("villages").select("id, name, mandal_id").order("name"),
+      (async () => {
+        const rows: { id: number; name: string; district_id: number }[] = [];
+        for (let from = 0; ; from += 1000) {
+          const { data } = await supabase
+            .from("mandals")
+            .select("id, name, district_id")
+            .order("name")
+            .range(from, from + 999);
+          if (!data?.length) break;
+          rows.push(...data);
+          if (data.length < 1000) break;
+        }
+        return { data: rows };
+      })(),
+      mandalId
+        ? supabase
+            .from("villages")
+            .select("id, name, mandal_id")
+            .eq("mandal_id", mandalId)
+            .order("name")
+        : Promise.resolve({ data: [] as { id: number; name: string; mandal_id: number }[] }),
     ]);
+  const villages = villagesResult.data;
 
   const stateName = (
     states: { name: string } | { name: string }[] | null | undefined,
@@ -291,10 +316,8 @@ async function ServicesPageContent({
   const filteredMandals = (mandals ?? []).filter(
     (mandal) => !districtId || mandal.district_id === districtId,
   );
-  // Cascade: only list villages after a mandal is chosen (avoids mega-dropdowns).
-  const filteredVillages = mandalId
-    ? (villages ?? []).filter((village) => village.mandal_id === mandalId)
-    : [];
+  // Cascade: villages load only after a mandal is chosen.
+  const filteredVillages = villages ?? [];
 
   return (
     <PageShell title={copy.servicesTitle} subtitle={copy.servicesSubtitle}>

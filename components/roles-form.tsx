@@ -1,22 +1,18 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useState } from "react";
 import { saveRoles, type RoleActionState } from "@/app/actions/roles";
+import { LocationCascade } from "@/components/location-cascade";
 import { useLocale } from "@/components/locale-provider";
 import type { AppRole } from "@/lib/auth";
-import { Field, Notice, PrimaryButton, Select, TextArea, TextInput } from "@/components/ui";
+import type {
+  LocationDistrict,
+  LocationMandal,
+  LocationVillage,
+} from "@/lib/location-ui";
+import { Field, Notice, PrimaryButton, TextArea, TextInput } from "@/components/ui";
 
 const initialState: RoleActionState = {};
-
-type District = { id: number; name: string; label?: string };
-type Mandal = { id: number; name: string; district_id: number };
-type Village = { id: number; name: string; mandal_id: number };
-
-function asId(value: number | string | null | undefined): number | null {
-  if (value == null || value === "") return null;
-  const n = Number(value);
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
 
 export function RolesForm({
   displayName,
@@ -24,84 +20,26 @@ export function RolesForm({
   nextPath = "/profile",
   districts,
   mandals,
-  villages,
   farmerVillageId,
+  farmerDistrictId,
+  farmerMandalId,
+  farmerVillages = [],
   farmerAbout,
 }: {
   displayName: string;
   roles: AppRole[];
   nextPath?: string;
-  districts: District[];
-  mandals: Mandal[];
-  villages: Village[];
+  districts: LocationDistrict[];
+  mandals: LocationMandal[];
   farmerVillageId?: number | null;
+  farmerDistrictId?: number | null;
+  farmerMandalId?: number | null;
+  farmerVillages?: LocationVillage[];
   farmerAbout?: string;
 }) {
   const { copy } = useLocale();
   const [state, action, pending] = useActionState(saveRoles, initialState);
   const [isFarmer, setIsFarmer] = useState(roles.includes("farmer"));
-
-  const savedVillageId = asId(farmerVillageId);
-  const initialVillage = savedVillageId
-    ? villages.find((v) => asId(v.id) === savedVillageId)
-    : undefined;
-  const initialMandal = initialVillage
-    ? mandals.find((m) => asId(m.id) === asId(initialVillage.mandal_id))
-    : undefined;
-  const defaultDistrictId =
-    asId(initialMandal?.district_id) ??
-    asId(districts.find((d) => d.name === "Rangareddy")?.id) ??
-    asId(districts[0]?.id) ??
-    0;
-
-  const [districtId, setDistrictId] = useState(defaultDistrictId);
-
-  const filteredMandals = useMemo(
-    () => mandals.filter((m) => asId(m.district_id) === districtId),
-    [mandals, districtId],
-  );
-
-  const defaultMandalId =
-    asId(initialMandal?.id) &&
-    filteredMandals.some((m) => asId(m.id) === asId(initialMandal?.id))
-      ? asId(initialMandal?.id)!
-      : (asId(filteredMandals[0]?.id) ?? 0);
-
-  const [mandalId, setMandalId] = useState(defaultMandalId);
-
-  const filteredVillages = useMemo(
-    () => villages.filter((v) => asId(v.mandal_id) === mandalId),
-    [villages, mandalId],
-  );
-
-  const defaultVillageId =
-    savedVillageId &&
-    filteredVillages.some((v) => asId(v.id) === savedVillageId)
-      ? savedVillageId
-      : (asId(filteredVillages[0]?.id) ?? 0);
-
-  const [villageId, setVillageId] = useState(defaultVillageId);
-
-  function selectDistrict(nextDistrict: number) {
-    setDistrictId(nextDistrict);
-    const nextMandals = mandals.filter(
-      (m) => asId(m.district_id) === nextDistrict,
-    );
-    const nextMandal = asId(nextMandals[0]?.id) ?? 0;
-    setMandalId(nextMandal);
-    const nextVillages = villages.filter(
-      (v) => asId(v.mandal_id) === nextMandal,
-    );
-    setVillageId(asId(nextVillages[0]?.id) ?? 0);
-  }
-
-  function selectMandal(nextMandal: number) {
-    setMandalId(nextMandal);
-    const nextVillages = villages.filter(
-      (v) => asId(v.mandal_id) === nextMandal,
-    );
-    setVillageId(asId(nextVillages[0]?.id) ?? 0);
-  }
 
   return (
     <form action={action} className="space-y-5">
@@ -171,49 +109,21 @@ export function RolesForm({
       {isFarmer ? (
         <div className="space-y-4 rounded-2xl border border-border bg-white p-4">
           <p className="text-sm font-medium">{copy.farmerLocation}</p>
-          <Field label={copy.district}>
-            <Select
-              value={districtId || ""}
-              onChange={(event) => selectDistrict(Number(event.target.value))}
-            >
-              {districts.map((district) => (
-                <option key={district.id} value={district.id}>
-                  {district.label ?? district.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label={copy.mandal}>
-            <Select
-              value={mandalId || ""}
-              onChange={(event) => selectMandal(Number(event.target.value))}
-            >
-              {filteredMandals.length === 0 ? (
-                <option value="">{copy.selectMandalFirst}</option>
-              ) : null}
-              {filteredMandals.map((mandal) => (
-                <option key={mandal.id} value={mandal.id}>
-                  {mandal.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label={copy.village}>
-            <Select
-              key={mandalId}
-              name="village_id"
-              value={villageId || ""}
-              onChange={(event) => setVillageId(Number(event.target.value) || 0)}
-              required
-            >
-              <option value="">{copy.selectLocation}</option>
-              {filteredVillages.map((village) => (
-                <option key={village.id} value={village.id}>
-                  {village.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
+          <LocationCascade
+            districts={districts}
+            mandals={mandals}
+            initialVillageId={farmerVillageId}
+            initialDistrictId={farmerDistrictId}
+            initialMandalId={farmerMandalId}
+            initialVillages={farmerVillages}
+            labels={{
+              district: copy.district,
+              mandal: copy.mandal,
+              village: copy.village,
+              selectLocation: copy.selectLocation,
+              selectMandalFirst: copy.selectMandalFirst,
+            }}
+          />
           <Field label={copy.aboutFarm}>
             <TextArea name="about" rows={3} defaultValue={farmerAbout ?? ""} />
           </Field>

@@ -6,7 +6,7 @@ import { PageShell, Panel } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { t } from "@/lib/locale";
 import { getRequestLocale } from "@/lib/locale-server";
-import { getListingFormOptions } from "@/lib/locations";
+import { getListingFormOptions, resolveVillageLocation } from "@/lib/locations";
 import { safeInternalPath } from "@/lib/redirect";
 import { createClient } from "@/utils/supabase/server";
 
@@ -35,6 +35,8 @@ async function RolesContent({
     getListingFormOptions(),
   ]);
 
+  const farmerLocation = await resolveVillageLocation(farmer?.village_id);
+
   return (
     <PageShell title={copy.rolesTitle} subtitle={copy.rolesSubtitle}>
       <Panel>
@@ -44,8 +46,10 @@ async function RolesContent({
           nextPath={next}
           districts={options.districts}
           mandals={options.mandals}
-          villages={options.villages}
           farmerVillageId={farmer?.village_id}
+          farmerDistrictId={farmerLocation?.districtId}
+          farmerMandalId={farmerLocation?.mandalId}
+          farmerVillages={farmerLocation?.villages ?? []}
           farmerAbout={farmer?.about ?? ""}
         />
       </Panel>

@@ -28,8 +28,8 @@
 | --- | --- |
 | `states` | Seeded: Telangana (+ AP via later seed) |
 | `districts` | TG + AP |
-| `mandals` | Includes synthetic “Municipal towns” for urban seeds |
-| `villages` | Villages + municipal towns |
+| `mandals` | Real mandals under TG/AP districts (LGD-derived seed) |
+| `villages` | Villages under each mandal (District → Mandal → Village) |
 
 ### A3. Farm Services (implemented in product)
 

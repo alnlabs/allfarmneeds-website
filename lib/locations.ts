@@ -1,20 +1,47 @@
 import { createClient } from "@/utils/supabase/server";
 
+async function fetchAllRows<T>(
+  query: (from: number, to: number) => PromiseLike<{ data: T[] | null }>,
+  pageSize = 1000,
+) {
+  const rows: T[] = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data } = await query(from, from + pageSize - 1);
+    if (!data?.length) break;
+    rows.push(...data);
+    if (data.length < pageSize) break;
+  }
+  return rows;
+}
+
 export async function getTgApLocationOptions() {
   const supabase = await createClient();
-  const [{ data: districts }, { data: mandals }, { data: villages }] =
-    await Promise.all([
+  const [districts, mandals] = await Promise.all([
+    fetchAllRows<{
+      id: number;
+      name: string;
+      state_id: number;
+      states: { name: string } | { name: string }[] | null;
+    }>((from, to) =>
       supabase
         .from("districts")
         .select("id, name, state_id, states!inner(name)")
         .in("states.name", ["Telangana", "Andhra Pradesh"])
-        .order("name"),
-      supabase.from("mandals").select("id, name, district_id").order("name"),
-      supabase.from("villages").select("id, name, mandal_id").order("name"),
-    ]);
+        .order("name")
+        .range(from, to),
+    ),
+    fetchAllRows<{ id: number; name: string; district_id: number }>(
+      (from, to) =>
+        supabase
+          .from("mandals")
+          .select("id, name, district_id")
+          .order("name")
+          .range(from, to),
+    ),
+  ]);
 
   return {
-    districts: (districts ?? []).map((district) => {
+    districts: districts.map((district) => {
       const state = Array.isArray(district.states)
         ? district.states[0]
         : district.states;
@@ -27,8 +54,44 @@ export async function getTgApLocationOptions() {
           : district.name,
       };
     }),
-    mandals: mandals ?? [],
-    villages: villages ?? [],
+    mandals,
+  };
+}
+
+export async function getVillagesForMandal(mandalId: number) {
+  if (!mandalId) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("villages")
+    .select("id, name, mandal_id")
+    .eq("mandal_id", mandalId)
+    .order("name");
+  return data ?? [];
+}
+
+export async function resolveVillageLocation(villageId: number | null | undefined) {
+  if (!villageId) return null;
+  const supabase = await createClient();
+  const { data: village } = await supabase
+    .from("villages")
+    .select("id, name, mandal_id, mandals(id, name, district_id)")
+    .eq("id", villageId)
+    .maybeSingle();
+
+  if (!village) return null;
+  const mandal = Array.isArray(village.mandals)
+    ? village.mandals[0]
+    : village.mandals;
+  if (!mandal) return null;
+
+  const villages = await getVillagesForMandal(mandal.id);
+  return {
+    villageId: village.id,
+    villageName: village.name,
+    mandalId: mandal.id,
+    mandalName: mandal.name,
+    districtId: mandal.district_id,
+    villages,
   };
 }
 

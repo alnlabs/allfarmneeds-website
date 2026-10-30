@@ -4,7 +4,7 @@ import { WorkerProfileForm } from "@/components/worker-profile-form";
 import { PageFallback } from "@/components/page-fallback";
 import { PageShell, Panel } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { getJobFormOptions } from "@/lib/locations";
+import { getJobFormOptions, resolveVillageLocation } from "@/lib/locations";
 import { safeInternalPath } from "@/lib/redirect";
 import { createClient } from "@/utils/supabase/server";
 
@@ -35,6 +35,8 @@ async function WorkerProfileContent({
       .eq("user_id", user.id),
   ]);
 
+  const location = await resolveVillageLocation(profile?.village_id);
+
   return (
     <PageShell
       title="Worker profile"
@@ -42,8 +44,13 @@ async function WorkerProfileContent({
     >
       <Panel>
         <WorkerProfileForm
-          {...options}
+          districts={options.districts}
+          mandals={options.mandals}
+          categories={options.categories}
           villageId={profile?.village_id}
+          districtId={location?.districtId}
+          mandalId={location?.mandalId}
+          villages={location?.villages ?? []}
           experience={profile?.experience ?? ""}
           expectedCompensation={profile?.expected_compensation ?? ""}
           availability={profile?.availability ?? ""}

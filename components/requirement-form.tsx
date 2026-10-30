@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState } from "react";
 import {
   saveBuyerRequirement,
   type RequirementActionState,
 } from "@/app/actions/requirements";
+import { LocationCascade } from "@/components/location-cascade";
 import {
   Field,
   Notice,
@@ -13,11 +14,13 @@ import {
   TextArea,
   TextInput,
 } from "@/components/ui";
+import type {
+  LocationDistrict,
+  LocationMandal,
+  LocationVillage,
+} from "@/lib/location-ui";
 
 type Category = { id: number; name_en: string; name_te: string };
-type District = { id: number; name: string; label?: string };
-type Mandal = { id: number; name: string; district_id: number };
-type Village = { id: number; name: string; mandal_id: number };
 
 const UNITS = [
   { value: "kg", label: "kg" },
@@ -33,13 +36,17 @@ export function RequirementForm({
   categories,
   districts,
   mandals,
-  villages,
   initial,
+  initialDistrictId,
+  initialMandalId,
+  initialVillages = [],
 }: {
   categories: Category[];
-  districts: District[];
-  mandals: Mandal[];
-  villages: Village[];
+  districts: LocationDistrict[];
+  mandals: LocationMandal[];
+  initialDistrictId?: number | null;
+  initialMandalId?: number | null;
+  initialVillages?: LocationVillage[];
   initial?: {
     id?: number;
     category_id?: number;
@@ -58,26 +65,6 @@ export function RequirementForm({
   };
 }) {
   const [state, action, pending] = useActionState(saveBuyerRequirement, initialState);
-  const initialVillage = villages.find((v) => v.id === initial?.village_id);
-  const initialMandal = mandals.find((m) => m.id === initialVillage?.mandal_id);
-  const [districtId, setDistrictId] = useState(
-    initial?.district_id ??
-      initialMandal?.district_id ??
-      districts.find((d) => d.name === "Rangareddy")?.id ??
-      districts[0]?.id ??
-      0,
-  );
-  const filteredMandals = useMemo(
-    () => mandals.filter((m) => m.district_id === districtId),
-    [mandals, districtId],
-  );
-  const [mandalId, setMandalId] = useState(
-    initialMandal?.id ?? filteredMandals[0]?.id ?? 0,
-  );
-  const filteredVillages = useMemo(
-    () => villages.filter((v) => v.mandal_id === mandalId),
-    [villages, mandalId],
-  );
 
   return (
     <form action={action} className="space-y-4">
@@ -170,52 +157,25 @@ export function RequirementForm({
         <TextArea name="quality_notes" rows={2} defaultValue={initial?.quality_notes ?? ""} />
       </Field>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Field label="District">
-          <Select
-            name="district_id"
-            value={districtId}
-            onChange={(event) => {
-              const nextDistrict = Number(event.target.value);
-              setDistrictId(nextDistrict);
-              setMandalId(
-                mandals.find((m) => m.district_id === nextDistrict)?.id ?? 0,
-              );
-            }}
-          >
-            {districts.map((district) => (
-              <option key={district.id} value={district.id}>
-                {district.label ?? district.name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field label="Mandal">
-          <Select
-            value={mandalId}
-            onChange={(event) => setMandalId(Number(event.target.value))}
-          >
-            {filteredMandals.map((mandal) => (
-              <option key={mandal.id} value={mandal.id}>
-                {mandal.name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field label="Village / town">
-          <Select
-            name="village_id"
-            defaultValue={initial?.village_id ?? filteredVillages[0]?.id ?? ""}
-          >
-            <option value="">Any in district</option>
-            {filteredVillages.map((village) => (
-              <option key={village.id} value={village.id}>
-                {village.name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      </div>
+      <LocationCascade
+        districts={districts}
+        mandals={mandals}
+        districtName="district_id"
+        initialVillageId={initial?.village_id}
+        initialDistrictId={initialDistrictId ?? initial?.district_id}
+        initialMandalId={initialMandalId}
+        initialVillages={initialVillages}
+        required={false}
+        labels={{
+          district: "District",
+          mandal: "Mandal",
+          village: "Village / town",
+          selectLocation: "Any in mandal",
+          selectMandalFirst: "Select a mandal first",
+        }}
+        className="grid gap-3 sm:grid-cols-3"
+      />
+
 
       <Field label="Status">
         <Select name="status" defaultValue={initial?.status ?? "draft"}>

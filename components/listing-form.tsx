@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { saveListing, type ListingActionState } from "@/app/actions/listings";
 import { LISTING_STATUSES, PRICE_UNITS } from "@/lib/site";
 import {
@@ -11,6 +11,7 @@ import {
   TextArea,
   TextInput,
 } from "@/components/ui";
+import { createClient } from "@/utils/supabase/client";
 
 type Category = { id: number; name_en: string; name_te: string };
 type District = { id: number; name: string; label?: string; state_name?: string };
@@ -43,13 +44,11 @@ export function ListingForm({
   categories,
   districts,
   mandals,
-  villages,
   initial,
 }: {
   categories: Category[];
   districts: District[];
   mandals: Mandal[];
-  villages: Village[];
   initial?: ListingValues;
 }) {
   const [state, action, pending] = useActionState(saveListing, initialState);
@@ -68,11 +67,32 @@ export function ListingForm({
     [mandals, districtId],
   );
   const [mandalId, setMandalId] = useState(filteredMandals[0]?.id ?? 0);
-  const filteredVillages = useMemo(
-    () => villages.filter((village) => village.mandal_id === mandalId),
-    [villages, mandalId],
-  );
-  const [villageId, setVillageId] = useState(filteredVillages[0]?.id ?? 0);
+  const [villages, setVillages] = useState<Village[]>([]);
+  const [villageId, setVillageId] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!mandalId) {
+      setVillages([]);
+      setVillageId(0);
+      return;
+    }
+    const supabase = createClient();
+    void supabase
+      .from("villages")
+      .select("id, name, mandal_id")
+      .eq("mandal_id", mandalId)
+      .order("name")
+      .then(({ data }) => {
+        if (cancelled) return;
+        const next = (data ?? []) as Village[];
+        setVillages(next);
+        setVillageId(next[0]?.id ?? 0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mandalId]);
 
   const districtLabel = (district: District) =>
     district.label ?? district.name;
@@ -91,7 +111,7 @@ export function ListingForm({
 
   const selectedDistrict = districts.find((d) => d.id === districtId);
   const selectedMandal = filteredMandals.find((m) => m.id === mandalId);
-  const selectedVillage = filteredVillages.find((v) => v.id === villageId);
+  const selectedVillage = villages.find((v) => v.id === villageId);
 
   return (
     <form action={action} className="space-y-4" encType="multipart/form-data">
@@ -195,10 +215,6 @@ export function ListingForm({
                   mandals.find((mandal) => mandal.district_id === nextDistrict)
                     ?.id ?? 0;
                 setMandalId(nextMandal);
-                const nextVillage =
-                  villages.find((village) => village.mandal_id === nextMandal)
-                    ?.id ?? 0;
-                setVillageId(nextVillage);
               }}
             >
               {districts.map((district) => (
@@ -211,14 +227,7 @@ export function ListingForm({
           <Field label="Mandal">
             <Select
               value={mandalId}
-              onChange={(event) => {
-                const nextMandal = Number(event.target.value);
-                setMandalId(nextMandal);
-                const nextVillage =
-                  villages.find((village) => village.mandal_id === nextMandal)
-                    ?.id ?? 0;
-                setVillageId(nextVillage);
-              }}
+              onChange={(event) => setMandalId(Number(event.target.value))}
             >
               {filteredMandals.map((mandal) => (
                 <option key={mandal.id} value={mandal.id}>
@@ -229,10 +238,10 @@ export function ListingForm({
           </Field>
           <Field label="Village / town">
             <Select
-              value={villageId}
+              value={villageId || ""}
               onChange={(event) => setVillageId(Number(event.target.value))}
             >
-              {filteredVillages.map((village) => (
+              {villages.map((village) => (
                 <option key={village.id} value={village.id}>
                   {village.name}
                 </option>
