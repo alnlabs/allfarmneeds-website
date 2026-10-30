@@ -36,7 +36,8 @@
   --outline-variant: #bfcaba;
   --inverse-surface: #27313f;
   --radius-card: 1rem;
-  --content-max: 80rem;
+  /* Keep wide — do not shrink to 7xl/80rem again. */
+  --content-max: 96rem;
 }
 
 @theme inline {

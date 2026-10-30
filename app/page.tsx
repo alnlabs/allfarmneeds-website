@@ -7,7 +7,7 @@ export default function HomePage() {
       {/* Mobile — Stitch package (1) */}
       <div className="bg-[#FBFBF9] text-on-surface lg:hidden">
         <div
-          className="mx-auto flex min-h-screen w-full max-w-lg flex-col pb-24"
+          className="mx-auto flex min-h-screen w-full max-w-[var(--content-max)] flex-col pb-24"
           dangerouslySetInnerHTML={{ __html: STITCH_MOBILE_HTML }}
         />
       </div>
