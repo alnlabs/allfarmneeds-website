@@ -68,9 +68,7 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const { copy, locationLabel, detecting } = useLocale();
   const [open, setOpen] = useState(false);
-  const [myWorkOpen, setMyWorkOpen] = useState(false);
   const menuId = useId();
-  const myWorkId = useId();
   const isProvider = roles.includes("service_provider");
   const isStaff =
     roles.includes("administrator") || roles.includes("moderator");
@@ -94,26 +92,7 @@ export function SiteHeader({
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!myWorkOpen) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMyWorkOpen(false);
-    };
-    const onPointer = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target?.closest(`[data-my-work-menu="${myWorkId}"]`)) return;
-      setMyWorkOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onPointer);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onPointer);
-    };
-  }, [myWorkOpen, myWorkId]);
-
   const close = () => setOpen(false);
-  const closeWork = () => setMyWorkOpen(false);
 
   const primary = (
     <>
@@ -156,26 +135,15 @@ export function SiteHeader({
     </MenuSection>
   );
 
-  function workMenu(onNavigate: () => void, blockLinks = false) {
-    const linkClass = blockLinks ? "block" : "";
+  function workMenu(onNavigate: () => void) {
     return (
       <>
-        <MenuSection label={copy.menuOverview}>
-          <NavLink href="/profile" onClick={onNavigate} className={linkClass}>
-            {copy.navProfile}
-          </NavLink>
-        </MenuSection>
-
         <MenuSection label={copy.menuActivity}>
-          <NavLink
-            href="/notifications"
-            onClick={onNavigate}
-            className={linkClass}
-          >
+          <NavLink href="/notifications" onClick={onNavigate}>
             {copy.notifications}
             <UnreadBadge count={unreadNotifications} />
           </NavLink>
-          <NavLink href="/bookings" onClick={onNavigate} className={linkClass}>
+          <NavLink href="/bookings" onClick={onNavigate}>
             {copy.bookings}
           </NavLink>
         </MenuSection>
@@ -184,69 +152,41 @@ export function SiteHeader({
           <MenuSection label={copy.menuYourWork}>
             {isFarmer ? (
               <>
-                <NavLink
-                  href="/farmer/jobs"
-                  onClick={onNavigate}
-                  className={linkClass}
-                >
+                <NavLink href="/farmer/jobs" onClick={onNavigate}>
                   {copy.myJobs}
                 </NavLink>
-                <NavLink
-                  href="/seller/crops"
-                  onClick={onNavigate}
-                  className={linkClass}
-                >
+                <NavLink href="/seller/crops" onClick={onNavigate}>
                   {copy.myCrops}
                 </NavLink>
               </>
             ) : null}
             {isFarmer || isBuyer ? (
-              <NavLink
-                href="/buyer/deals"
-                onClick={onNavigate}
-                className={linkClass}
-              >
+              <NavLink href="/buyer/deals" onClick={onNavigate}>
                 {copy.cropDeals}
               </NavLink>
             ) : null}
             {isBuyer ? (
-              <NavLink
-                href="/buyer/requirements"
-                onClick={onNavigate}
-                className={linkClass}
-              >
+              <NavLink href="/buyer/requirements" onClick={onNavigate}>
                 {copy.myRequirements}
               </NavLink>
             ) : null}
             {isWorker ? (
-              <NavLink
-                href="/worker/applications"
-                onClick={onNavigate}
-                className={linkClass}
-              >
+              <NavLink href="/worker/applications" onClick={onNavigate}>
                 {copy.applications}
               </NavLink>
             ) : null}
             {isProvider ? (
               <>
-                <NavLink
-                  href="/provider/listings"
-                  onClick={onNavigate}
-                  className={linkClass}
-                >
+                <NavLink href="/provider/listings" onClick={onNavigate}>
                   {copy.myListings}
                 </NavLink>
-                <NavLink
-                  href="/provider/bookings"
-                  onClick={onNavigate}
-                  className={linkClass}
-                >
+                <NavLink href="/provider/bookings" onClick={onNavigate}>
                   {copy.providerBookings}
                 </NavLink>
               </>
             ) : null}
             {isStaff ? (
-              <NavLink href="/admin" onClick={onNavigate} className={linkClass}>
+              <NavLink href="/admin" onClick={onNavigate}>
                 {copy.admin}
               </NavLink>
             ) : null}
@@ -255,37 +195,21 @@ export function SiteHeader({
 
         <MenuSection label={copy.menuSettings}>
           {isBuyer ? (
-            <NavLink
-              href="/buyer/profile"
-              onClick={onNavigate}
-              className={linkClass}
-            >
+            <NavLink href="/buyer/profile" onClick={onNavigate}>
               {copy.buyerProfile}
             </NavLink>
           ) : null}
           {isWorker ? (
-            <NavLink
-              href="/worker/profile"
-              onClick={onNavigate}
-              className={linkClass}
-            >
+            <NavLink href="/worker/profile" onClick={onNavigate}>
               {copy.workerProfile}
             </NavLink>
           ) : null}
           {isProvider ? (
-            <NavLink
-              href="/provider/profile"
-              onClick={onNavigate}
-              className={linkClass}
-            >
+            <NavLink href="/provider/profile" onClick={onNavigate}>
               {copy.providerProfile}
             </NavLink>
           ) : null}
-          <NavLink
-            href="/onboarding/roles"
-            onClick={onNavigate}
-            className={linkClass}
-          >
+          <NavLink href="/onboarding/roles" onClick={onNavigate}>
             {copy.roles}
           </NavLink>
           <form action={signOut} className="px-1 pt-1">
@@ -352,26 +276,10 @@ export function SiteHeader({
           <NavLink href="/create">{copy.navCreate}</NavLink>
           <NavLink href="/messages">{copy.navMessages}</NavLink>
           {email ? (
-            <div className="relative" data-my-work-menu={myWorkId}>
-              <button
-                type="button"
-                className="inline-flex items-center rounded-lg px-3 py-2 text-sm hover:bg-accent-soft"
-                aria-expanded={myWorkOpen}
-                aria-controls={`${myWorkId}-panel`}
-                onClick={() => setMyWorkOpen((value) => !value)}
-              >
-                {copy.navProfile}
-                <UnreadBadge count={unreadNotifications} />
-              </button>
-              {myWorkOpen ? (
-                <div
-                  id={`${myWorkId}-panel`}
-                  className="absolute left-0 top-full z-50 mt-1 max-h-[min(28rem,70vh)] w-72 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-lg"
-                >
-                  {workMenu(closeWork, true)}
-                </div>
-              ) : null}
-            </div>
+            <NavLink href="/profile">
+              {copy.navProfile}
+              <UnreadBadge count={unreadNotifications} />
+            </NavLink>
           ) : (
             <NavLink href="/login">{copy.signIn}</NavLink>
           )}
