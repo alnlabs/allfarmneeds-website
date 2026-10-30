@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { FilterPanel } from "@/components/filter-panel";
 import { PageFallback } from "@/components/page-fallback";
-import { PageShell, Panel, Select, TextInput } from "@/components/ui";
+import {
+  EmptyState,
+  ListingCard,
+  PageShell,
+  Select,
+  TextInput,
+} from "@/components/ui";
 import { categoryLabel, t, type Locale } from "@/lib/locale";
 import { getRequestLocale } from "@/lib/locale-server";
 import { formatArea } from "@/lib/locations";
@@ -154,14 +161,22 @@ async function ServicesResults({
 
   if (filtered.length === 0) {
     return (
-      <Panel>
-        <p className="text-muted">{copy.noServices}</p>
-      </Panel>
+      <EmptyState
+        title={copy.noServices}
+        action={
+          <Link
+            href="/create"
+            className="inline-flex rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
+          >
+            {copy.navCreate}
+          </Link>
+        }
+      />
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {filtered.map((listing) => {
         const category = Array.isArray(listing.service_categories)
           ? listing.service_categories[0]
@@ -176,35 +191,23 @@ async function ServicesResults({
           ? listing.service_listing_areas[0]
           : listing.service_listing_areas;
         const photo = listing.photo_urls?.[0];
+        const eyebrow = category
+          ? (() => {
+              const label = categoryLabel(locale, category);
+              return `${label.primary} — ${label.secondary}`;
+            })()
+          : copy.farmServices;
 
         return (
-          <Link
+          <ListingCard
             key={listing.id}
             href={`/services/${listing.id}`}
-            className="flex gap-4 rounded-2xl border border-border bg-white p-5 transition hover:border-accent"
-          >
-            {photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={photo}
-                alt=""
-                className="hidden h-24 w-24 shrink-0 rounded-xl object-cover sm:block"
-              />
-            ) : null}
-            <div className="min-w-0 flex-1">
-              <p className="text-sm text-muted">
-                {category
-                  ? (() => {
-                      const label = categoryLabel(locale, category);
-                      return `${label.primary} — ${label.secondary}`;
-                    })()
-                  : copy.farmServices}
-              </p>
-              <h2 className="mt-1 text-xl font-semibold">{listing.title}</h2>
-              <p className="mt-2 line-clamp-2 text-sm text-muted">
-                {listing.description || "No description yet."}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">
+            eyebrow={eyebrow}
+            title={listing.title}
+            description={listing.description || undefined}
+            imageUrl={photo}
+            meta={
+              <>
                 <span>
                   {listing.price_amount != null
                     ? `₹${listing.price_amount}${listing.price_unit ? ` / ${listing.price_unit}` : ""}`
@@ -217,9 +220,9 @@ async function ServicesResults({
                     ? " · Verified"
                     : ""}
                 </span>
-              </div>
-            </div>
-          </Link>
+              </>
+            }
+          />
         );
       })}
     </div>
@@ -264,99 +267,118 @@ async function ServicesPageContent({
       supabase.from("villages").select("id, name, mandal_id").order("name"),
     ]);
 
+  const stateName = (
+    states: { name: string } | { name: string }[] | null | undefined,
+  ) => {
+    if (Array.isArray(states)) return states[0]?.name;
+    return states?.name;
+  };
+
+  const sortedDistricts = [...(districts ?? [])].sort((a, b) => {
+    const rank = (name?: string) => (name === "Telangana" ? 0 : 1);
+    const byState = rank(stateName(a.states)) - rank(stateName(b.states));
+    if (byState !== 0) return byState;
+    return a.name.localeCompare(b.name);
+  });
+
   const filteredMandals = (mandals ?? []).filter(
     (mandal) => !districtId || mandal.district_id === districtId,
   );
-  const filteredVillages = (villages ?? []).filter(
-    (village) => !mandalId || village.mandal_id === mandalId,
-  );
+  // Cascade: only list villages after a mandal is chosen (avoids mega-dropdowns).
+  const filteredVillages = mandalId
+    ? (villages ?? []).filter((village) => village.mandal_id === mandalId)
+    : [];
 
   return (
     <PageShell title={copy.servicesTitle} subtitle={copy.servicesSubtitle}>
-      <Panel>
-        <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="space-y-2 text-sm sm:col-span-2 lg:col-span-4">
-            <span className="font-medium">{copy.search}</span>
-            <TextInput
-              name="q"
-              defaultValue={query ?? ""}
-              placeholder={copy.searchPlaceholder}
-            />
-          </label>
-          <label className="space-y-2 text-sm">
-            <span className="font-medium">{copy.category}</span>
-            <Select name="category" defaultValue={categoryId ?? ""}>
-              <option value="">{copy.allCategories}</option>
-              {categories?.map((category) => {
-                const label = categoryLabel(locale, category);
-                return (
-                  <option key={category.id} value={category.id}>
-                    {label.primary} — {label.secondary}
+      <div className="grid gap-6 lg:grid-cols-[minmax(16rem,20rem)_1fr]">
+        <FilterPanel title={copy.filters}>
+          <form className="grid gap-3">
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.search}</span>
+              <TextInput
+                name="q"
+                defaultValue={query ?? ""}
+                placeholder={copy.searchPlaceholder}
+              />
+            </label>
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.category}</span>
+              <Select name="category" defaultValue={categoryId ?? ""}>
+                <option value="">{copy.allCategories}</option>
+                {categories?.map((category) => {
+                  const label = categoryLabel(locale, category);
+                  return (
+                    <option key={category.id} value={category.id}>
+                      {label.primary} — {label.secondary}
+                    </option>
+                  );
+                })}
+              </Select>
+            </label>
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.district}</span>
+              <Select name="district" defaultValue={districtId ?? ""}>
+                <option value="">{copy.allDistricts}</option>
+                {sortedDistricts.map((district) => {
+                  const state = Array.isArray(district.states)
+                    ? district.states[0]
+                    : district.states;
+                  return (
+                    <option key={district.id} value={district.id}>
+                      {district.name}
+                      {state?.name ? ` (${state.name})` : ""}
+                    </option>
+                  );
+                })}
+              </Select>
+            </label>
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.mandal}</span>
+              <Select name="mandal" defaultValue={mandalId ?? ""}>
+                <option value="">{copy.allMandals}</option>
+                {filteredMandals.map((mandal) => (
+                  <option key={mandal.id} value={mandal.id}>
+                    {mandal.name}
                   </option>
-                );
-              })}
-            </Select>
-          </label>
-          <label className="space-y-2 text-sm">
-            <span className="font-medium">{copy.district}</span>
-            <Select name="district" defaultValue={districtId ?? ""}>
-              <option value="">{copy.allDistricts}</option>
-              {districts?.map((district) => {
-                const state = Array.isArray(district.states)
-                  ? district.states[0]
-                  : district.states;
-                return (
-                  <option key={district.id} value={district.id}>
-                    {district.name}
-                    {state?.name ? ` (${state.name})` : ""}
+                ))}
+              </Select>
+            </label>
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.village}</span>
+              <Select
+                name="village"
+                defaultValue={mandalId ? (villageId ?? "") : ""}
+                disabled={!mandalId}
+              >
+                <option value="">
+                  {mandalId ? copy.allVillages : copy.selectMandalFirst}
+                </option>
+                {filteredVillages.map((village) => (
+                  <option key={village.id} value={village.id}>
+                    {village.name}
                   </option>
-                );
-              })}
-            </Select>
-          </label>
-          <label className="space-y-2 text-sm">
-            <span className="font-medium">{copy.mandal}</span>
-            <Select name="mandal" defaultValue={mandalId ?? ""}>
-              <option value="">{copy.allMandals}</option>
-              {filteredMandals.map((mandal) => (
-                <option key={mandal.id} value={mandal.id}>
-                  {mandal.name}
-                </option>
-              ))}
-            </Select>
-          </label>
-          <label className="space-y-2 text-sm">
-            <span className="font-medium">{copy.village}</span>
-            <Select name="village" defaultValue={villageId ?? ""}>
-              <option value="">{copy.allVillages}</option>
-              {filteredVillages.map((village) => (
-                <option key={village.id} value={village.id}>
-                  {village.name}
-                </option>
-              ))}
-            </Select>
-          </label>
-          <label className="flex items-end gap-2 pb-2 text-sm">
-            <input
-              type="checkbox"
-              name="verified"
-              value="1"
-              defaultChecked={verifiedOnly}
-            />
-            <span>{copy.verifiedOnly}</span>
-          </label>
-          <div className="flex items-end">
+                ))}
+              </Select>
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="verified"
+                value="1"
+                defaultChecked={verifiedOnly}
+              />
+              <span>{copy.verifiedOnly}</span>
+            </label>
             <button
               type="submit"
               className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
               {copy.applyFilters}
             </button>
-          </div>
-        </form>
-      </Panel>
+          </form>
+        </FilterPanel>
 
-      <div className="mt-6">
         <ServicesResults
           categoryId={categoryId}
           districtId={districtId}

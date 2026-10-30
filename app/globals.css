@@ -48,4 +48,17 @@ body {
   button {
     font: inherit;
   }
+
+  /* Avoid accidental horizontal page scroll on small phones. */
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+}
+
+/* Accessible summary marker reset for filter drawers */
+details > summary::-webkit-details-marker {
+  display: none;
 }

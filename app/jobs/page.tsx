@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { FilterPanel } from "@/components/filter-panel";
 import { PageFallback } from "@/components/page-fallback";
-import { PageShell, Panel, Select } from "@/components/ui";
+import {
+  EmptyState,
+  ListingCard,
+  PageShell,
+  Select,
+} from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { t } from "@/lib/locale";
 import { getRequestLocale } from "@/lib/locale-server";
@@ -60,7 +66,7 @@ async function JobsContent({
           : "Browse approved farm jobs near you and apply as a worker."
       }
       actions={
-        <div className="flex flex-wrap gap-2">
+        <>
           {user?.roles.includes("farmer") ? (
             <Link
               href="/jobs/new"
@@ -75,96 +81,105 @@ async function JobsContent({
               href="/worker/profile"
               className="rounded-xl border border-border bg-white px-4 py-2.5 hover:bg-accent-soft"
             >
-              {locale === "te" ? "వర్కర్ ప్రొఫైల్" : "Worker profile"}
+              {copy.workerProfile}
             </Link>
           ) : null}
-        </div>
+        </>
       }
     >
-      <Panel>
-        <form className="grid gap-3 sm:grid-cols-[1fr_auto]">
-          <label className="space-y-2 text-sm">
-            <span className="font-medium">{copy.category}</span>
-            <Select name="category" defaultValue={categoryId ?? ""}>
-              <option value="">{copy.allCategories}</option>
-              {categories?.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {locale === "te"
-                    ? `${category.name_te} — ${category.name_en}`
-                    : `${category.name_en} — ${category.name_te}`}
-                </option>
-              ))}
-            </Select>
-          </label>
-          <div className="flex items-end">
+      <div className="grid gap-6 lg:grid-cols-[minmax(14rem,18rem)_1fr]">
+        <FilterPanel title={copy.filters}>
+          <form className="grid gap-3">
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.category}</span>
+              <Select name="category" defaultValue={categoryId ?? ""}>
+                <option value="">{copy.allCategories}</option>
+                {categories?.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {locale === "te"
+                      ? `${category.name_te} — ${category.name_en}`
+                      : `${category.name_en} — ${category.name_te}`}
+                  </option>
+                ))}
+              </Select>
+            </label>
             <button
               type="submit"
-              className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong sm:w-auto"
+              className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
               {copy.applyFilters}
             </button>
-          </div>
-        </form>
-      </Panel>
+          </form>
+        </FilterPanel>
 
-      <div className="mt-6 space-y-3">
-        {error ? <p className="text-red-700">{error.message}</p> : null}
-        {(jobs ?? []).length === 0 ? (
-          <Panel>
-            <p className="text-muted">
-              {locale === "te"
-                ? "ఇంకా ఆమోదించిన జాబ్‌లు లేవు."
-                : "No approved farm jobs match these filters yet."}
-            </p>
-          </Panel>
-        ) : (
-          jobs?.map((job) => {
-            const category = Array.isArray(job.job_categories)
-              ? job.job_categories[0]
-              : job.job_categories;
-            const village = Array.isArray(job.villages)
-              ? job.villages[0]
-              : job.villages;
-            const farmer = Array.isArray(job.profiles)
-              ? job.profiles[0]
-              : job.profiles;
+        <div className="space-y-3">
+          {error ? <p className="text-red-700">{error.message}</p> : null}
+          {(jobs ?? []).length === 0 ? (
+            <EmptyState
+              title={
+                locale === "te"
+                  ? "ఇంకా ఆమోదించిన జాబ్‌లు లేవు."
+                  : "No approved farm jobs match these filters yet."
+              }
+              action={
+                user?.roles.includes("farmer") ? (
+                  <Link
+                    href="/jobs/new"
+                    className="inline-flex rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+                  >
+                    {locale === "te" ? "కొత్త జాబ్" : "Post a job"}
+                  </Link>
+                ) : null
+              }
+            />
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {jobs?.map((job) => {
+                const category = Array.isArray(job.job_categories)
+                  ? job.job_categories[0]
+                  : job.job_categories;
+                const village = Array.isArray(job.villages)
+                  ? job.villages[0]
+                  : job.villages;
+                const farmer = Array.isArray(job.profiles)
+                  ? job.profiles[0]
+                  : job.profiles;
+                const eyebrow = category
+                  ? locale === "te"
+                    ? `${category.name_te} — ${category.name_en}`
+                    : `${category.name_en} — ${category.name_te}`
+                  : copy.modules.farmJobs.title;
 
-            return (
-              <Link
-                key={job.id}
-                href={`/jobs/${job.id}`}
-                className="block rounded-2xl border border-border bg-white p-5 transition hover:border-accent"
-              >
-                <p className="text-sm text-muted">
-                  {category
-                    ? locale === "te"
-                      ? `${category.name_te} — ${category.name_en}`
-                      : `${category.name_en} — ${category.name_te}`
-                    : copy.modules.farmJobs.title}
-                </p>
-                <h2 className="mt-1 text-xl font-semibold">{job.title}</h2>
-                <p className="mt-2 line-clamp-2 text-sm text-muted">
-                  {job.description || "—"}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">
-                  <span>
-                    {job.workers_required}{" "}
-                    {locale === "te" ? "మంది" : "workers"}
-                  </span>
-                  {job.work_date ? <span>{job.work_date}</span> : null}
-                  {village?.name ? <span>{village.name}</span> : null}
-                  {job.advertised_amount != null ? (
-                    <span>
-                      ₹{job.advertised_amount}
-                      {job.payment_model ? ` / ${job.payment_model}` : ""}
-                    </span>
-                  ) : null}
-                  <span>{farmer?.display_name ?? "Farmer"}</span>
-                </div>
-              </Link>
-            );
-          })
-        )}
+                return (
+                  <ListingCard
+                    key={job.id}
+                    href={`/jobs/${job.id}`}
+                    eyebrow={eyebrow}
+                    title={job.title}
+                    description={job.description || undefined}
+                    meta={
+                      <>
+                        <span>
+                          {job.workers_required}{" "}
+                          {locale === "te" ? "మంది" : "workers"}
+                        </span>
+                        {job.work_date ? <span>{job.work_date}</span> : null}
+                        {village?.name ? <span>{village.name}</span> : null}
+                        {job.advertised_amount != null ? (
+                          <span>
+                            ₹{job.advertised_amount}
+                            {job.payment_model ? ` / ${job.payment_model}` : ""}
+                          </span>
+                        ) : null}
+                        <span>{farmer?.display_name ?? "Farmer"}</span>
+                      </>
+                    }
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </PageShell>
   );

@@ -130,7 +130,7 @@ export function AgriMitraChat({
 
   return (
     <div className="space-y-4">
-      <div className="max-h-[28rem] space-y-3 overflow-y-auto rounded-2xl border border-border bg-white p-4">
+      <div className="max-h-[min(28rem,55vh)] space-y-3 overflow-y-auto rounded-2xl border border-border bg-white p-3 sm:p-4">
         {messages.length === 0 ? (
           <p className="text-sm text-muted">
             {locale === "te"
@@ -143,8 +143,8 @@ export function AgriMitraChat({
               key={message.id}
               className={`rounded-xl px-3 py-2 text-sm whitespace-pre-wrap ${
                 message.role === "user"
-                  ? "ml-8 bg-accent text-white"
-                  : "mr-8 border border-border bg-accent-soft/40"
+                  ? "ml-4 bg-accent text-white sm:ml-8"
+                  : "mr-4 border border-border bg-accent-soft/40 sm:mr-8"
               }`}
             >
               {message.content}
@@ -169,20 +169,20 @@ export function AgriMitraChat({
               ? String(confirmation.payload.title ?? "Farm job")
               : String(confirmation.payload.title ?? "Crop listing")}
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <form action={resolveAgriMitraConfirmation}>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <form action={resolveAgriMitraConfirmation} className="sm:contents">
               <input type="hidden" name="confirmation_id" value={confirmation.id} />
               <input type="hidden" name="session_id" value={sessionId ?? ""} />
               <input type="hidden" name="decision" value="confirm" />
-              <PrimaryButton type="submit">
+              <PrimaryButton type="submit" className="w-full sm:w-auto">
                 {locale === "te" ? "నిర్ధారించి ప్రచురించు" : "Confirm & publish"}
               </PrimaryButton>
             </form>
-            <form action={resolveAgriMitraConfirmation}>
+            <form action={resolveAgriMitraConfirmation} className="sm:contents">
               <input type="hidden" name="confirmation_id" value={confirmation.id} />
               <input type="hidden" name="session_id" value={sessionId ?? ""} />
               <input type="hidden" name="decision" value="cancel" />
-              <SecondaryButton type="submit">
+              <SecondaryButton type="submit" className="w-full sm:w-auto">
                 {locale === "te" ? "రద్దు" : "Cancel"}
               </SecondaryButton>
             </form>
@@ -190,7 +190,7 @@ export function AgriMitraChat({
         </div>
       ))}
 
-      <form action={action} className="space-y-3 rounded-2xl border border-border bg-white p-4">
+      <form action={action} className="space-y-3 rounded-2xl border border-border bg-white p-3 sm:p-4">
         {sessionId ? <input type="hidden" name="session_id" value={sessionId} /> : null}
         <input type="hidden" name="locale" value={locale} />
         {state.error ? <Notice tone="error">{state.error}</Notice> : null}
@@ -199,8 +199,8 @@ export function AgriMitraChat({
           hint={
             speechSupported
               ? locale === "te"
-                ? "టైప్ చేయండి లేదా మైక్ వాడండి (బ్రౌజర్ స్పీచ్)."
-                : "Type or use the mic (browser speech)."
+                ? "టైప్ చేయండి లేదా మైక్ వాడండి (బ్రౌజర్ స్పీచ్ — క్లౌడ్ STT కాదు)."
+                : "Type or use the mic (browser speech — not cloud STT)."
               : locale === "te"
                 ? "టైప్ చేయండి."
                 : "Type your request."
@@ -220,8 +220,8 @@ export function AgriMitraChat({
             }
           />
         </Field>
-        <div className="flex flex-wrap gap-2">
-          <PrimaryButton type="submit" disabled={pending}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <PrimaryButton type="submit" disabled={pending} className="w-full sm:w-auto">
             {pending
               ? locale === "te"
                 ? "పంపుతున్నాం…"
@@ -231,7 +231,12 @@ export function AgriMitraChat({
                 : "Send"}
           </PrimaryButton>
           {speechSupported ? (
-            <SecondaryButton type="button" onClick={toggleListen}>
+            <SecondaryButton
+              type="button"
+              onClick={toggleListen}
+              className="w-full sm:w-auto"
+              aria-pressed={listening}
+            >
               {listening
                 ? locale === "te"
                   ? "వినడం ఆపు"

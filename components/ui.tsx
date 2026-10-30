@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export function PageShell({
@@ -12,15 +13,19 @@ export function PageShell({
   actions?: ReactNode;
 }) {
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-accent-strong">
+    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight text-accent-strong sm:text-3xl">
             {title}
           </h1>
-          {subtitle ? <p className="mt-2 max-w-2xl text-muted">{subtitle}</p> : null}
+          {subtitle ? (
+            <p className="mt-2 max-w-2xl text-sm text-muted sm:text-base">{subtitle}</p>
+          ) : null}
         </div>
-        {actions}
+        {actions ? (
+          <div className="flex flex-wrap gap-2 sm:justify-end">{actions}</div>
+        ) : null}
       </div>
       {children}
     </main>
@@ -122,5 +127,91 @@ export function Notice({
 
   return (
     <div className={`rounded-xl border px-3 py-2 text-sm ${styles}`}>{children}</div>
+  );
+}
+
+export function StatusBadge({
+  children,
+  tone = "neutral",
+}: {
+  children: ReactNode;
+  tone?: "neutral" | "success" | "warning" | "danger";
+}) {
+  const styles =
+    tone === "success"
+      ? "border-green-200 bg-green-50 text-green-900"
+      : tone === "warning"
+        ? "border-amber-200 bg-amber-50 text-amber-950"
+        : tone === "danger"
+          ? "border-red-200 bg-red-50 text-red-900"
+          : "border-border bg-accent-soft text-foreground";
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${styles}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+export function EmptyState({
+  title,
+  body,
+  action,
+}: {
+  title: string;
+  body?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <Panel>
+      <p className="font-medium">{title}</p>
+      {body ? <p className="mt-2 text-sm text-muted">{body}</p> : null}
+      {action ? <div className="mt-4">{action}</div> : null}
+    </Panel>
+  );
+}
+
+export function ListingCard({
+  href,
+  eyebrow,
+  title,
+  description,
+  meta,
+  imageUrl,
+}: {
+  href: string;
+  eyebrow?: ReactNode;
+  title: string;
+  description?: string;
+  meta?: ReactNode;
+  imageUrl?: string | null;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex gap-3 rounded-2xl border border-border bg-white p-4 transition hover:border-accent sm:gap-4 sm:p-5"
+    >
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt=""
+          className="h-16 w-16 shrink-0 rounded-xl object-cover sm:h-24 sm:w-24"
+        />
+      ) : null}
+      <div className="min-w-0 flex-1">
+        {eyebrow ? <div className="text-sm text-muted">{eyebrow}</div> : null}
+        <h2 className="mt-0.5 text-lg font-semibold sm:text-xl">{title}</h2>
+        {description ? (
+          <p className="mt-2 line-clamp-2 text-sm text-muted">{description}</p>
+        ) : null}
+        {meta ? (
+          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted">
+            {meta}
+          </div>
+        ) : null}
+      </div>
+    </Link>
   );
 }

@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { FilterPanel } from "@/components/filter-panel";
 import { PageFallback } from "@/components/page-fallback";
-import { PageShell, Panel, Select } from "@/components/ui";
+import {
+  EmptyState,
+  ListingCard,
+  PageShell,
+  Select,
+} from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { t } from "@/lib/locale";
 import { getRequestLocale } from "@/lib/locale-server";
@@ -72,100 +78,101 @@ async function CropsContent({
         ) : null
       }
     >
-      <Panel>
-        <form className="grid gap-3 sm:grid-cols-[1fr_auto]">
-          <label className="space-y-2 text-sm">
-            <span className="font-medium">{copy.category}</span>
-            <Select name="category" defaultValue={categoryId ?? ""}>
-              <option value="">{copy.allCategories}</option>
-              {categories?.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {locale === "te"
-                    ? `${category.name_te} — ${category.name_en}`
-                    : `${category.name_en} — ${category.name_te}`}
-                </option>
-              ))}
-            </Select>
-          </label>
-          <div className="flex items-end">
+      <div className="grid gap-6 lg:grid-cols-[minmax(14rem,18rem)_1fr]">
+        <FilterPanel title={copy.filters}>
+          <form className="grid gap-3">
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.category}</span>
+              <Select name="category" defaultValue={categoryId ?? ""}>
+                <option value="">{copy.allCategories}</option>
+                {categories?.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {locale === "te"
+                      ? `${category.name_te} — ${category.name_en}`
+                      : `${category.name_en} — ${category.name_te}`}
+                  </option>
+                ))}
+              </Select>
+            </label>
             <button
               type="submit"
-              className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong sm:w-auto"
+              className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
               {copy.applyFilters}
             </button>
-          </div>
-        </form>
-      </Panel>
+          </form>
+        </FilterPanel>
 
-      <div className="mt-6 space-y-3">
-        {error ? <p className="text-red-700">{error.message}</p> : null}
-        {(listings ?? []).length === 0 ? (
-          <Panel>
-            <p className="text-muted">
-              {locale === "te"
-                ? "ఇంకా ఆమోదించిన పంట జాబితాలు లేవు."
-                : "No approved crop listings match these filters yet."}
-            </p>
-          </Panel>
-        ) : (
-          listings?.map((listing) => {
-            const category = Array.isArray(listing.product_categories)
-              ? listing.product_categories[0]
-              : listing.product_categories;
-            const village = Array.isArray(listing.villages)
-              ? listing.villages[0]
-              : listing.villages;
-            const seller = Array.isArray(listing.profiles)
-              ? listing.profiles[0]
-              : listing.profiles;
-            const photo = listing.photo_urls?.[0];
+        <div className="space-y-3">
+          {error ? <p className="text-red-700">{error.message}</p> : null}
+          {(listings ?? []).length === 0 ? (
+            <EmptyState
+              title={
+                locale === "te"
+                  ? "ఇంకా ఆమోదించిన పంట జాబితాలు లేవు."
+                  : "No approved crop listings match these filters yet."
+              }
+              action={
+                user?.roles.includes("farmer") ? (
+                  <Link
+                    href="/crops/new"
+                    className="inline-flex rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+                  >
+                    {locale === "te" ? "పంట జాబితా" : "Sell produce"}
+                  </Link>
+                ) : null
+              }
+            />
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {listings?.map((listing) => {
+                const category = Array.isArray(listing.product_categories)
+                  ? listing.product_categories[0]
+                  : listing.product_categories;
+                const village = Array.isArray(listing.villages)
+                  ? listing.villages[0]
+                  : listing.villages;
+                const seller = Array.isArray(listing.profiles)
+                  ? listing.profiles[0]
+                  : listing.profiles;
+                const eyebrow = category
+                  ? locale === "te"
+                    ? `${category.name_te} — ${category.name_en}`
+                    : `${category.name_en} — ${category.name_te}`
+                  : copy.modules.cropMarketplace.title;
 
-            return (
-              <Link
-                key={listing.id}
-                href={`/crops/${listing.id}`}
-                className="flex gap-4 rounded-2xl border border-border bg-white p-5 transition hover:border-accent"
-              >
-                {photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photo}
-                    alt=""
-                    className="hidden h-24 w-24 shrink-0 rounded-xl object-cover sm:block"
+                return (
+                  <ListingCard
+                    key={listing.id}
+                    href={`/crops/${listing.id}`}
+                    eyebrow={eyebrow}
+                    title={listing.title}
+                    description={listing.description || undefined}
+                    imageUrl={listing.photo_urls?.[0]}
+                    meta={
+                      <>
+                        <span>
+                          {listing.quantity_available} {listing.quantity_unit}
+                        </span>
+                        {listing.expected_price != null ? (
+                          <span>
+                            ₹{listing.expected_price}
+                            {listing.price_unit ? ` / ${listing.price_unit}` : ""}
+                          </span>
+                        ) : null}
+                        {listing.quality_grade ? (
+                          <span>{listing.quality_grade}</span>
+                        ) : null}
+                        {village?.name ? <span>{village.name}</span> : null}
+                        <span>{seller?.display_name ?? "Seller"}</span>
+                      </>
+                    }
                   />
-                ) : null}
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-muted">
-                    {category
-                      ? locale === "te"
-                        ? `${category.name_te} — ${category.name_en}`
-                        : `${category.name_en} — ${category.name_te}`
-                      : copy.modules.cropMarketplace.title}
-                  </p>
-                  <h2 className="mt-1 text-xl font-semibold">{listing.title}</h2>
-                  <p className="mt-2 line-clamp-2 text-sm text-muted">
-                    {listing.description || "—"}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">
-                    <span>
-                      {listing.quantity_available} {listing.quantity_unit}
-                    </span>
-                    {listing.expected_price != null ? (
-                      <span>
-                        ₹{listing.expected_price}
-                        {listing.price_unit ? ` / ${listing.price_unit}` : ""}
-                      </span>
-                    ) : null}
-                    {listing.quality_grade ? <span>{listing.quality_grade}</span> : null}
-                    {village?.name ? <span>{village.name}</span> : null}
-                    <span>{seller?.display_name ?? "Seller"}</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </PageShell>
   );

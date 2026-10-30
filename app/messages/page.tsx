@@ -2,16 +2,25 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { PageFallback } from "@/components/page-fallback";
-import { PageShell, Panel } from "@/components/ui";
+import {
+  EmptyState,
+  ListingCard,
+  PageShell,
+  StatusBadge,
+} from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { t } from "@/lib/locale";
+import { getRequestLocale } from "@/lib/locale-server";
 import { createClient } from "@/utils/supabase/server";
 
 async function MessagesContent() {
   const user = await requireUser();
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/messages");
   }
 
+  const { locale } = await getRequestLocale();
+  const copy = t(locale);
   const supabase = await createClient();
   const { data: enquiries, error } = await supabase
     .from("enquiries")
@@ -31,42 +40,63 @@ async function MessagesContent() {
 
   return (
     <PageShell
-      title="Messages"
-      subtitle="Enquiries between farmers and service providers."
+      title={copy.messages}
+      subtitle={
+        locale === "te"
+          ? "సేవలు, ఉద్యోగాలు మరియు జాబితాల గురించి సందేశాలు."
+          : "Enquiries about services, jobs and listings."
+      }
     >
       {error ? <p className="text-red-700">{error.message}</p> : null}
       <div className="space-y-3">
         {(enquiries ?? []).length === 0 ? (
-          <Panel>
-            <p className="text-muted">No enquiries yet.</p>
-          </Panel>
+          <EmptyState
+            title={
+              locale === "te" ? "ఇంకా సందేశాలు లేవు." : "No enquiries yet."
+            }
+            action={
+              <Link
+                href="/explore"
+                className="inline-flex rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
+              >
+                {copy.navExplore}
+              </Link>
+            }
+          />
         ) : (
           enquiries?.map((enquiry) => {
             const listing = Array.isArray(enquiry.service_listings)
               ? enquiry.service_listings[0]
               : enquiry.service_listings;
             const direction =
-              enquiry.sender_id === user.id ? "You sent" : "You received";
+              enquiry.sender_id === user.id
+                ? locale === "te"
+                  ? "మీరు పంపారు"
+                  : "You sent"
+                : locale === "te"
+                  ? "మీకు వచ్చింది"
+                  : "You received";
 
             return (
-              <Link
+              <ListingCard
                 key={enquiry.id}
                 href={`/messages/${enquiry.id}`}
-                className="block rounded-2xl border border-border bg-white p-5 hover:border-accent"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted">
-                  <span>
-                    {direction} · {enquiry.status}
+                eyebrow={
+                  <span className="inline-flex flex-wrap items-center gap-2">
+                    <span>{direction}</span>
+                    <StatusBadge
+                      tone={enquiry.status === "open" ? "success" : "neutral"}
+                    >
+                      {enquiry.status}
+                    </StatusBadge>
                   </span>
+                }
+                title={listing?.title ?? (locale === "te" ? "సందేశం" : "Enquiry")}
+                description={enquiry.message}
+                meta={
                   <span>{new Date(enquiry.created_at).toLocaleString()}</span>
-                </div>
-                <h2 className="mt-2 text-lg font-semibold">
-                  {listing?.title ?? "Service enquiry"}
-                </h2>
-                <p className="mt-2 line-clamp-2 text-sm text-muted">
-                  {enquiry.message}
-                </p>
-              </Link>
+                }
+              />
             );
           })
         )}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense, type ReactNode } from "react";
 import { LocaleProvider } from "@/components/locale-provider";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { requireUser } from "@/lib/auth";
 import type { Locale } from "@/lib/locale";
@@ -66,6 +67,7 @@ function AppChrome({
         <Header />
       </Suspense>
       <div className="flex-1 bg-background">{children}</div>
+      <SiteFooter />
     </LocaleProvider>
   );
 }
