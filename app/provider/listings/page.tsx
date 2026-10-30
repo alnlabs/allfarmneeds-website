@@ -30,7 +30,7 @@ async function ProviderListingsContent() {
   const { data: listings } = await supabase
     .from("service_listings")
     .select(
-      "id, title, status, price_amount, price_unit, service_categories(name_en, name_te)",
+      "id, title, status, moderation_status, price_amount, price_unit, service_categories(name_en, name_te)",
     )
     .eq("provider_id", user.id)
     .order("updated_at", { ascending: false });
@@ -70,7 +70,8 @@ async function ProviderListingsContent() {
                     </p>
                     <h2 className="text-xl font-semibold">{listing.title}</h2>
                     <p className="mt-1 text-sm text-muted">
-                      Status: {listing.status}
+                      Status: {listing.status} · Moderation:{" "}
+                      {listing.moderation_status}
                       {listing.price_amount != null
                         ? ` · ₹${listing.price_amount}${listing.price_unit ? ` / ${listing.price_unit}` : ""}`
                         : ""}

@@ -9,6 +9,8 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ email, roles = [] }: SiteHeaderProps) {
   const isProvider = roles.includes("service_provider");
+  const isStaff =
+    roles.includes("administrator") || roles.includes("moderator");
 
   return (
     <header className="border-b border-border bg-surface/90 backdrop-blur">
@@ -21,10 +23,13 @@ export function SiteHeader({ email, roles = [] }: SiteHeaderProps) {
         </div>
         <nav className="flex flex-wrap items-center gap-3 text-sm">
           <Link href="/services" className="rounded-md px-2 py-1 hover:bg-accent-soft">
-            Services
+            Farm Services
           </Link>
           {email ? (
             <>
+              <Link href="/bookings" className="rounded-md px-2 py-1 hover:bg-accent-soft">
+                Bookings
+              </Link>
               <Link href="/messages" className="rounded-md px-2 py-1 hover:bg-accent-soft">
                 Messages
               </Link>
@@ -37,12 +42,26 @@ export function SiteHeader({ email, roles = [] }: SiteHeaderProps) {
                     My listings
                   </Link>
                   <Link
+                    href="/provider/bookings"
+                    className="rounded-md px-2 py-1 hover:bg-accent-soft"
+                  >
+                    Provider bookings
+                  </Link>
+                  <Link
                     href="/provider/profile"
                     className="rounded-md px-2 py-1 hover:bg-accent-soft"
                   >
                     Provider profile
                   </Link>
                 </>
+              ) : null}
+              {isStaff ? (
+                <Link
+                  href="/admin/listings"
+                  className="rounded-md px-2 py-1 hover:bg-accent-soft"
+                >
+                  Moderation
+                </Link>
               ) : null}
               <Link
                 href="/onboarding/roles"

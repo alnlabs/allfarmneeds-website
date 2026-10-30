@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { requireUser, type AppRole } from "@/lib/auth";
+import { safeInternalPath } from "@/lib/redirect";
 
 const selectableRoles: AppRole[] = ["farmer", "service_provider"];
 
@@ -25,6 +26,9 @@ export async function saveRoles(
   }
 
   const displayName = String(formData.get("display_name") ?? "").trim();
+  const villageId = Number(formData.get("village_id") || 0) || null;
+  const about = String(formData.get("about") ?? "").trim();
+  const next = safeInternalPath(String(formData.get("next") ?? ""));
   const supabase = await createClient();
 
   if (displayName) {
@@ -76,9 +80,20 @@ export async function saveRoles(
     }
   }
 
-  if (selected.includes("service_provider")) {
-    redirect("/provider/profile");
+  if (selected.includes("farmer")) {
+    const { error } = await supabase.from("farmer_profiles").upsert({
+      user_id: user.id,
+      village_id: villageId,
+      about,
+    });
+    if (error) {
+      return { error: error.message };
+    }
   }
 
-  redirect("/services");
+  if (selected.includes("service_provider")) {
+    redirect(`/provider/profile?next=${encodeURIComponent(next)}`);
+  }
+
+  redirect(next);
 }

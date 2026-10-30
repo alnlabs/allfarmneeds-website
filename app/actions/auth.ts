@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { requireUser } from "@/lib/auth";
+import { safeInternalPath } from "@/lib/redirect";
 import { getSiteUrl } from "@/lib/site";
 
 export type AuthActionState = {
@@ -9,6 +11,7 @@ export type AuthActionState = {
   success?: string;
   email?: string;
   step?: "email" | "code";
+  next?: string;
 };
 
 export async function sendLoginCode(
@@ -18,9 +21,10 @@ export async function sendLoginCode(
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
+  const next = safeInternalPath(String(formData.get("next") ?? ""));
 
   if (!email || !email.includes("@")) {
-    return { error: "Enter a valid email address.", step: "email" };
+    return { error: "Enter a valid email address.", step: "email", next };
   }
 
   const supabase = await createClient();
@@ -28,18 +32,19 @@ export async function sendLoginCode(
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
+      emailRedirectTo: `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 
   if (error) {
-    return { error: error.message, step: "email", email };
+    return { error: error.message, step: "email", email, next };
   }
 
   return {
     success: "Check your email for a login code or magic link.",
     email,
     step: "code",
+    next,
   };
 }
 
@@ -51,12 +56,14 @@ export async function verifyLoginCode(
     .trim()
     .toLowerCase();
   const token = String(formData.get("token") ?? "").trim();
+  const next = safeInternalPath(String(formData.get("next") ?? ""));
 
   if (!email || !token) {
     return {
       error: "Enter the email and the code from your inbox.",
       step: "code",
       email,
+      next,
     };
   }
 
@@ -68,10 +75,42 @@ export async function verifyLoginCode(
   });
 
   if (error) {
-    return { error: error.message, step: "code", email };
+    return { error: error.message, step: "code", email, next };
   }
 
-  redirect("/onboarding/roles");
+  const user = await requireUser();
+  if (!user || user.roles.length === 0) {
+    redirect(`/onboarding/roles?next=${encodeURIComponent(next)}`);
+  }
+
+  redirect(next);
+}
+
+export async function signInWithGoogle(formData: FormData) {
+  const next = safeInternalPath(String(formData.get("next") ?? ""));
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  });
+
+  if (error || !data.url) {
+    redirect(
+      `/login?error=google&next=${encodeURIComponent(next)}${
+        error?.message
+          ? `&message=${encodeURIComponent(error.message)}`
+          : ""
+      }`,
+    );
+  }
+
+  redirect(data.url);
 }
 
 export async function signOut() {

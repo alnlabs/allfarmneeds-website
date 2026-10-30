@@ -17,6 +17,11 @@ type District = { id: number; name: string; label?: string; state_name?: string 
 type Mandal = { id: number; name: string; district_id: number };
 type Village = { id: number; name: string; mandal_id: number };
 
+export type SelectedArea = {
+  token: string;
+  label: string;
+};
+
 type ListingValues = {
   id?: number;
   category_id?: number;
@@ -28,8 +33,8 @@ type ListingValues = {
   availability_note?: string | null;
   travel_charge_note?: string | null;
   status?: string;
-  area_type?: "district" | "mandal" | "village";
-  area_id?: number;
+  photo_urls?: string[];
+  areas?: SelectedArea[];
 };
 
 const initialState: ListingActionState = {};
@@ -48,40 +53,55 @@ export function ListingForm({
   initial?: ListingValues;
 }) {
   const [state, action, pending] = useActionState(saveListing, initialState);
-  const [areaType, setAreaType] = useState<"district" | "mandal" | "village">(
-    initial?.area_type ?? "village",
+  const [selectedAreas, setSelectedAreas] = useState<SelectedArea[]>(
+    initial?.areas ?? [],
+  );
+  const [keptPhotos, setKeptPhotos] = useState<string[]>(
+    initial?.photo_urls ?? [],
   );
   const [districtId, setDistrictId] = useState(
     districts.find((d) => d.name === "Rangareddy")?.id ?? districts[0]?.id ?? 0,
   );
-  const districtLabel = (district: District) =>
-    district.label ?? district.name;
 
   const filteredMandals = useMemo(
     () => mandals.filter((mandal) => mandal.district_id === districtId),
     [mandals, districtId],
   );
-  const [mandalId, setMandalId] = useState(
-    initial?.area_type === "mandal"
-      ? initial.area_id
-      : filteredMandals[0]?.id ?? 0,
-  );
-
+  const [mandalId, setMandalId] = useState(filteredMandals[0]?.id ?? 0);
   const filteredVillages = useMemo(
     () => villages.filter((village) => village.mandal_id === mandalId),
     [villages, mandalId],
   );
+  const [villageId, setVillageId] = useState(filteredVillages[0]?.id ?? 0);
 
-  const areaOptions =
-    areaType === "district"
-      ? districts
-      : areaType === "mandal"
-        ? filteredMandals
-        : filteredVillages;
+  const districtLabel = (district: District) =>
+    district.label ?? district.name;
+
+  function addArea(token: string, label: string) {
+    setSelectedAreas((current) =>
+      current.some((area) => area.token === token)
+        ? current
+        : [...current, { token, label }],
+    );
+  }
+
+  function removeArea(token: string) {
+    setSelectedAreas((current) => current.filter((area) => area.token !== token));
+  }
+
+  const selectedDistrict = districts.find((d) => d.id === districtId);
+  const selectedMandal = filteredMandals.find((m) => m.id === mandalId);
+  const selectedVillage = filteredVillages.find((v) => v.id === villageId);
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="space-y-4" encType="multipart/form-data">
       {initial?.id ? <input type="hidden" name="listing_id" value={initial.id} /> : null}
+      {selectedAreas.map((area) => (
+        <input key={area.token} type="hidden" name="areas" value={area.token} />
+      ))}
+      {keptPhotos.map((url) => (
+        <input key={url} type="hidden" name="keep_photo_url" value={url} />
+      ))}
       {state.error ? <Notice tone="error">{state.error}</Notice> : null}
 
       <Field label="Category">
@@ -157,31 +177,28 @@ export function ListingForm({
         />
       </Field>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Service area type">
-          <Select
-            name="area_type"
-            value={areaType}
-            onChange={(event) =>
-              setAreaType(event.target.value as "district" | "mandal" | "village")
-            }
-          >
-            <option value="district">District</option>
-            <option value="mandal">Mandal</option>
-            <option value="village">Village</option>
-          </Select>
-        </Field>
-        {areaType !== "district" ? (
-          <Field label="District filter">
+      <div className="space-y-3 rounded-2xl border border-border bg-white p-4">
+        <p className="text-sm font-medium">Service areas</p>
+        <p className="text-sm text-muted">
+          Add one or more districts, mandals, or villages where you offer this
+          service.
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Field label="District">
             <Select
               value={districtId}
               onChange={(event) => {
                 const nextDistrict = Number(event.target.value);
                 setDistrictId(nextDistrict);
                 const nextMandal =
-                  mandals.find((mandal) => mandal.district_id === nextDistrict)?.id ??
-                  0;
+                  mandals.find((mandal) => mandal.district_id === nextDistrict)
+                    ?.id ?? 0;
                 setMandalId(nextMandal);
+                const nextVillage =
+                  villages.find((village) => village.mandal_id === nextMandal)
+                    ?.id ?? 0;
+                setVillageId(nextVillage);
               }}
             >
               {districts.map((district) => (
@@ -191,37 +208,135 @@ export function ListingForm({
               ))}
             </Select>
           </Field>
-        ) : null}
+          <Field label="Mandal">
+            <Select
+              value={mandalId}
+              onChange={(event) => {
+                const nextMandal = Number(event.target.value);
+                setMandalId(nextMandal);
+                const nextVillage =
+                  villages.find((village) => village.mandal_id === nextMandal)
+                    ?.id ?? 0;
+                setVillageId(nextVillage);
+              }}
+            >
+              {filteredMandals.map((mandal) => (
+                <option key={mandal.id} value={mandal.id}>
+                  {mandal.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Village / town">
+            <Select
+              value={villageId}
+              onChange={(event) => setVillageId(Number(event.target.value))}
+            >
+              {filteredVillages.map((village) => (
+                <option key={village.id} value={village.id}>
+                  {village.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-accent-soft"
+            onClick={() => {
+              if (!selectedDistrict) return;
+              addArea(
+                `district:${selectedDistrict.id}`,
+                `District: ${districtLabel(selectedDistrict)}`,
+              );
+            }}
+          >
+            Add district
+          </button>
+          <button
+            type="button"
+            className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-accent-soft"
+            onClick={() => {
+              if (!selectedMandal || !selectedDistrict) return;
+              addArea(
+                `mandal:${selectedMandal.id}`,
+                `Mandal: ${selectedMandal.name} (${districtLabel(selectedDistrict)})`,
+              );
+            }}
+          >
+            Add mandal
+          </button>
+          <button
+            type="button"
+            className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-accent-soft"
+            onClick={() => {
+              if (!selectedVillage || !selectedMandal || !selectedDistrict) return;
+              addArea(
+                `village:${selectedVillage.id}`,
+                `${selectedVillage.name} · ${selectedMandal.name} · ${districtLabel(selectedDistrict)}`,
+              );
+            }}
+          >
+            Add village / town
+          </button>
+        </div>
+
+        {selectedAreas.length === 0 ? (
+          <p className="text-sm text-muted">No areas added yet.</p>
+        ) : (
+          <ul className="flex flex-wrap gap-2">
+            {selectedAreas.map((area) => (
+              <li
+                key={area.token}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-accent-soft px-3 py-1 text-sm"
+              >
+                <span>{area.label}</span>
+                <button
+                  type="button"
+                  className="text-muted hover:text-accent-strong"
+                  onClick={() => removeArea(area.token)}
+                  aria-label={`Remove ${area.label}`}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      {areaType === "village" ? (
-        <Field label="Mandal filter">
-          <Select
-            value={mandalId}
-            onChange={(event) => setMandalId(Number(event.target.value))}
-          >
-            {filteredMandals.map((mandal) => (
-              <option key={mandal.id} value={mandal.id}>
-                {mandal.name}
-              </option>
+      <Field
+        label="Service photos"
+        hint="Up to 8 images, 5 MB each. Existing photos stay unless you remove them."
+      >
+        {keptPhotos.length > 0 ? (
+          <ul className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {keptPhotos.map((url) => (
+              <li key={url} className="relative overflow-hidden rounded-xl border border-border">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" className="h-24 w-full object-cover" />
+                <button
+                  type="button"
+                  className="absolute right-1 top-1 rounded bg-black/60 px-2 py-0.5 text-xs text-white"
+                  onClick={() =>
+                    setKeptPhotos((current) => current.filter((item) => item !== url))
+                  }
+                >
+                  Remove
+                </button>
+              </li>
             ))}
-          </Select>
-        </Field>
-      ) : null}
-
-      <Field label="Service area">
-        <Select
-          name="area_id"
-          required
-          defaultValue={initial?.area_id ?? areaOptions[0]?.id ?? ""}
-        >
-          <option value="">Select area</option>
-          {areaOptions.map((area) => (
-            <option key={area.id} value={area.id}>
-              {"label" in area && area.label ? area.label : area.name}
-            </option>
-          ))}
-        </Select>
+          </ul>
+        ) : null}
+        <input
+          type="file"
+          name="photos"
+          accept="image/*"
+          multiple
+          className="block w-full text-sm"
+        />
       </Field>
 
       <Field label="Status">
@@ -233,8 +348,12 @@ export function ListingForm({
           ))}
         </Select>
       </Field>
+      <p className="text-sm text-muted">
+        Published listings are reviewed by AllFarmNeeds staff before they appear
+        in public search.
+      </p>
 
-      <PrimaryButton type="submit" disabled={pending}>
+      <PrimaryButton type="submit" disabled={pending || selectedAreas.length === 0}>
         {pending ? "Saving…" : initial?.id ? "Update listing" : "Create listing"}
       </PrimaryButton>
     </form>

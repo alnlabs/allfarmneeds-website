@@ -4,31 +4,43 @@ import { LoginForm } from "@/components/login-form";
 import { PageFallback } from "@/components/page-fallback";
 import { PageShell, Panel } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { safeInternalPath } from "@/lib/redirect";
 
 async function LoginContent({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string; message?: string }>;
 }) {
+  const params = await searchParams;
+  const next = safeInternalPath(params.next);
+
   const user = await requireUser();
   if (user) {
-    redirect(user.roles.length ? "/services" : "/onboarding/roles");
+    redirect(
+      user.roles.length
+        ? next
+        : `/onboarding/roles?next=${encodeURIComponent(next)}`,
+    );
   }
 
-  const params = await searchParams;
+  const errorText =
+    params.error === "google"
+      ? params.message ||
+        "Google sign-in is not configured yet. Enable the Google provider in Supabase Auth."
+      : params.error
+        ? "Sign-in failed or expired. Try Google again or request a new email code."
+        : null;
 
   return (
     <PageShell
       title="Sign in"
-      subtitle="Use your email for a one-time login code. Magic links also work when your Auth email template includes them."
+      subtitle="Continue with Google, or use email for a one-time login code."
     >
       <Panel>
-        {params.error ? (
-          <p className="mb-4 text-sm text-red-700">
-            Sign-in link expired or invalid. Request a new code.
-          </p>
+        {errorText ? (
+          <p className="mb-4 text-sm text-red-700">{errorText}</p>
         ) : null}
-        <LoginForm />
+        <LoginForm nextPath={next} />
       </Panel>
     </PageShell>
   );
@@ -37,7 +49,7 @@ async function LoginContent({
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string; message?: string }>;
 }) {
   return (
     <Suspense fallback={<PageFallback title="Sign in" />}>

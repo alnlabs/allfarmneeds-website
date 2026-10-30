@@ -1,23 +1,30 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { PageFallback } from "@/components/page-fallback";
-import { PageShell, Panel, Select } from "@/components/ui";
+import { PageShell, Panel, Select, TextInput } from "@/components/ui";
 import { formatArea } from "@/lib/locations";
 import { createClient } from "@/utils/supabase/server";
 
 async function ServicesResults({
   categoryId,
   districtId,
+  mandalId,
+  villageId,
+  query,
   verifiedOnly,
 }: {
   categoryId?: number;
   districtId?: number;
+  mandalId?: number;
+  villageId?: number;
+  query?: string;
   verifiedOnly: boolean;
 }) {
   const supabase = await createClient();
 
   let villageIdsInDistrict: number[] = [];
   let mandalIdsInDistrict: number[] = [];
+  let villageIdsInMandal: number[] = [];
 
   if (districtId) {
     const { data: mandals } = await supabase
@@ -35,7 +42,15 @@ async function ServicesResults({
     }
   }
 
-  let query = supabase
+  if (mandalId) {
+    const { data: villages } = await supabase
+      .from("villages")
+      .select("id")
+      .eq("mandal_id", mandalId);
+    villageIdsInMandal = (villages ?? []).map((village) => village.id);
+  }
+
+  let listingsQuery = supabase
     .from("service_listings")
     .select(
       `
@@ -44,6 +59,7 @@ async function ServicesResults({
       description,
       price_amount,
       price_unit,
+      photo_urls,
       category_id,
       provider_id,
       service_categories(name_en, name_te),
@@ -62,13 +78,19 @@ async function ServicesResults({
     `,
     )
     .eq("status", "published")
+    .eq("moderation_status", "approved")
     .order("updated_at", { ascending: false });
 
   if (categoryId) {
-    query = query.eq("category_id", categoryId);
+    listingsQuery = listingsQuery.eq("category_id", categoryId);
+  }
+  if (query) {
+    listingsQuery = listingsQuery.or(
+      `title.ilike.%${query}%,description.ilike.%${query}%`,
+    );
   }
 
-  const { data: listings, error } = await query;
+  const { data: listings, error } = await listingsQuery;
 
   if (error) {
     return <p className="text-red-700">{error.message}</p>;
@@ -86,15 +108,34 @@ async function ServicesResults({
       return false;
     }
 
-    if (!districtId) {
-      return true;
-    }
-
     const areas = Array.isArray(listing.service_listing_areas)
       ? listing.service_listing_areas
       : listing.service_listing_areas
         ? [listing.service_listing_areas]
         : [];
+
+    if (villageId) {
+      return areas.some(
+        (area) =>
+          area.village_id === villageId ||
+          area.mandal_id === mandalId ||
+          area.district_id === districtId,
+      );
+    }
+
+    if (mandalId) {
+      return areas.some(
+        (area) =>
+          area.mandal_id === mandalId ||
+          (area.village_id != null &&
+            villageIdsInMandal.includes(area.village_id)) ||
+          area.district_id === districtId,
+      );
+    }
+
+    if (!districtId) {
+      return true;
+    }
 
     return areas.some(
       (area) =>
@@ -132,35 +173,46 @@ async function ServicesResults({
         const area = Array.isArray(listing.service_listing_areas)
           ? listing.service_listing_areas[0]
           : listing.service_listing_areas;
+        const photo = listing.photo_urls?.[0];
 
         return (
           <Link
             key={listing.id}
             href={`/services/${listing.id}`}
-            className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent"
+            className="flex gap-4 rounded-2xl border border-border bg-surface p-5 transition hover:border-accent"
           >
-            <p className="text-sm text-muted">
-              {category
-                ? `${category.name_te} — ${category.name_en}`
-                : "Service"}
-            </p>
-            <h2 className="mt-1 text-xl font-semibold">{listing.title}</h2>
-            <p className="mt-2 line-clamp-2 text-sm text-muted">
-              {listing.description || "No description yet."}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">
-              <span>
-                {listing.price_amount != null
-                  ? `₹${listing.price_amount}${listing.price_unit ? ` / ${listing.price_unit}` : ""}`
-                  : "Price on enquiry"}
-              </span>
-              <span>{area ? formatArea(area) : "Area not set"}</span>
-              <span>
-                {provider?.business_name ?? profile?.display_name ?? "Provider"}
-                {provider?.verification_status === "verified"
-                  ? " · Verified"
-                  : ""}
-              </span>
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photo}
+                alt=""
+                className="hidden h-24 w-24 shrink-0 rounded-xl object-cover sm:block"
+              />
+            ) : null}
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-muted">
+                {category
+                  ? `${category.name_te} — ${category.name_en}`
+                  : "Service"}
+              </p>
+              <h2 className="mt-1 text-xl font-semibold">{listing.title}</h2>
+              <p className="mt-2 line-clamp-2 text-sm text-muted">
+                {listing.description || "No description yet."}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted">
+                <span>
+                  {listing.price_amount != null
+                    ? `₹${listing.price_amount}${listing.price_unit ? ` / ${listing.price_unit}` : ""}`
+                    : "Price on enquiry"}
+                </span>
+                <span>{area ? formatArea(area) : "Area not set"}</span>
+                <span>
+                  {provider?.business_name ?? profile?.display_name ?? "Provider"}
+                  {provider?.verification_status === "verified"
+                    ? " · Verified"
+                    : ""}
+                </span>
+              </div>
             </div>
           </Link>
         );
@@ -175,34 +227,58 @@ async function ServicesPageContent({
   searchParams: Promise<{
     category?: string;
     district?: string;
+    mandal?: string;
+    village?: string;
+    q?: string;
     verified?: string;
   }>;
 }) {
   const params = await searchParams;
   const categoryId = params.category ? Number(params.category) : undefined;
   const districtId = params.district ? Number(params.district) : undefined;
+  const mandalId = params.mandal ? Number(params.mandal) : undefined;
+  const villageId = params.village ? Number(params.village) : undefined;
+  const query = params.q?.trim() || undefined;
   const verifiedOnly = params.verified === "1";
 
   const supabase = await createClient();
-  const [{ data: categories }, { data: districts }] = await Promise.all([
-    supabase
-      .from("service_categories")
-      .select("id, name_en, name_te")
-      .order("name_en"),
-    supabase
-      .from("districts")
-      .select("id, name, states!inner(name)")
-      .in("states.name", ["Telangana", "Andhra Pradesh"])
-      .order("name"),
-  ]);
+  const [{ data: categories }, { data: districts }, { data: mandals }, { data: villages }] =
+    await Promise.all([
+      supabase
+        .from("service_categories")
+        .select("id, name_en, name_te")
+        .order("name_en"),
+      supabase
+        .from("districts")
+        .select("id, name, states!inner(name)")
+        .in("states.name", ["Telangana", "Andhra Pradesh"])
+        .order("name"),
+      supabase.from("mandals").select("id, name, district_id").order("name"),
+      supabase.from("villages").select("id, name, mandal_id").order("name"),
+    ]);
+
+  const filteredMandals = (mandals ?? []).filter(
+    (mandal) => !districtId || mandal.district_id === districtId,
+  );
+  const filteredVillages = (villages ?? []).filter(
+    (village) => !mandalId || village.mandal_id === mandalId,
+  );
 
   return (
     <PageShell
       title="Agricultural services"
-      subtitle="Browse published services. Contact providers through enquiries — phone numbers stay private."
+      subtitle="Search approved services by category and location. Contact providers by call, WhatsApp, booking request or enquiry."
     >
       <Panel>
-        <form className="grid gap-3 md:grid-cols-4">
+        <form className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <label className="space-y-2 text-sm md:col-span-2 lg:col-span-3">
+            <span className="font-medium">Search</span>
+            <TextInput
+              name="q"
+              defaultValue={query ?? ""}
+              placeholder="Tractor, drip, labour…"
+            />
+          </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Category</span>
             <Select name="category" defaultValue={categoryId ?? ""}>
@@ -231,6 +307,28 @@ async function ServicesPageContent({
               })}
             </Select>
           </label>
+          <label className="space-y-2 text-sm">
+            <span className="font-medium">Mandal</span>
+            <Select name="mandal" defaultValue={mandalId ?? ""}>
+              <option value="">All mandals</option>
+              {filteredMandals.map((mandal) => (
+                <option key={mandal.id} value={mandal.id}>
+                  {mandal.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="space-y-2 text-sm">
+            <span className="font-medium">Village / town</span>
+            <Select name="village" defaultValue={villageId ?? ""}>
+              <option value="">All villages</option>
+              {filteredVillages.map((village) => (
+                <option key={village.id} value={village.id}>
+                  {village.name}
+                </option>
+              ))}
+            </Select>
+          </label>
           <label className="flex items-end gap-2 pb-2 text-sm">
             <input
               type="checkbox"
@@ -255,6 +353,9 @@ async function ServicesPageContent({
         <ServicesResults
           categoryId={categoryId}
           districtId={districtId}
+          mandalId={mandalId}
+          villageId={villageId}
+          query={query}
           verifiedOnly={verifiedOnly}
         />
       </div>
@@ -268,6 +369,9 @@ export default function ServicesPage({
   searchParams: Promise<{
     category?: string;
     district?: string;
+    mandal?: string;
+    village?: string;
+    q?: string;
     verified?: string;
   }>;
 }) {

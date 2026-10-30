@@ -5,7 +5,7 @@ export function getSiteUrl() {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
   }
-  return "http://localhost:3000";
+  return "http://localhost:2200";
 }
 
 export const PRICE_UNITS = [

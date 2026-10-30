@@ -1,18 +1,32 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { safeInternalPath } from "@/lib/redirect";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
-  const next = searchParams.get("next") ?? "/onboarding/roles";
+  const next = safeInternalPath(searchParams.get("next"));
 
   const supabase = await createClient();
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      const { data } = await supabase.auth.getClaims();
+      const userId = data?.claims?.sub;
+      if (userId) {
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId);
+        if (!roles?.length) {
+          return NextResponse.redirect(
+            `${origin}/onboarding/roles?next=${encodeURIComponent(next)}`,
+          );
+        }
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
@@ -23,7 +37,9 @@ export async function GET(request: Request) {
       token_hash: tokenHash,
     });
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(
+        `${origin}/onboarding/roles?next=${encodeURIComponent(next)}`,
+      );
     }
   }
 

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
-import { ListingForm } from "@/components/listing-form";
+import { ListingForm, type SelectedArea } from "@/components/listing-form";
 import { PageFallback } from "@/components/page-fallback";
 import { PageShell, Panel } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
@@ -30,7 +30,7 @@ async function EditListingContent({
   const { data: listing } = await supabase
     .from("service_listings")
     .select(
-      "id, category_id, title, description, price_amount, price_unit, minimum_booking, availability_note, travel_charge_note, status, service_listing_areas(district_id, mandal_id, village_id)",
+      "id, category_id, title, description, price_amount, price_unit, minimum_booking, availability_note, travel_charge_note, status, photo_urls, moderation_status, service_listing_areas(district_id, mandal_id, village_id, districts(name), mandals(name), villages(name))",
     )
     .eq("id", listingId)
     .eq("provider_id", user.id)
@@ -40,24 +40,62 @@ async function EditListingContent({
     notFound();
   }
 
-  const area = Array.isArray(listing.service_listing_areas)
-    ? listing.service_listing_areas[0]
-    : listing.service_listing_areas;
-
-  let areaType: "district" | "mandal" | "village" = "district";
-  let areaId = area?.district_id ?? undefined;
-  if (area?.village_id) {
-    areaType = "village";
-    areaId = area.village_id;
-  } else if (area?.mandal_id) {
-    areaType = "mandal";
-    areaId = area.mandal_id;
-  }
-
   const options = await getListingFormOptions();
+  const areaRows = Array.isArray(listing.service_listing_areas)
+    ? listing.service_listing_areas
+    : listing.service_listing_areas
+      ? [listing.service_listing_areas]
+      : [];
+
+  const relationName = (
+    value: { name: string } | { name: string }[] | null | undefined,
+  ) => (Array.isArray(value) ? value[0]?.name : value?.name);
+
+  const areas: SelectedArea[] = areaRows.flatMap((area) => {
+    const districtName = relationName(
+      area.districts as { name: string } | { name: string }[] | null,
+    );
+    const mandalName = relationName(
+      area.mandals as { name: string } | { name: string }[] | null,
+    );
+    const villageName = relationName(
+      area.villages as { name: string } | { name: string }[] | null,
+    );
+
+    if (area.village_id) {
+      return [
+        {
+          token: `village:${area.village_id}`,
+          label: villageName ?? `Village #${area.village_id}`,
+        },
+      ];
+    }
+    if (area.mandal_id) {
+      return [
+        {
+          token: `mandal:${area.mandal_id}`,
+          label: mandalName ? `Mandal: ${mandalName}` : `Mandal #${area.mandal_id}`,
+        },
+      ];
+    }
+    if (area.district_id) {
+      return [
+        {
+          token: `district:${area.district_id}`,
+          label: districtName
+            ? `District: ${districtName}`
+            : `District #${area.district_id}`,
+        },
+      ];
+    }
+    return [];
+  });
 
   return (
-    <PageShell title="Edit listing" subtitle={listing.title}>
+    <PageShell
+      title="Edit listing"
+      subtitle={`${listing.title} · Moderation: ${listing.moderation_status}`}
+    >
       <Panel>
         <ListingForm
           {...options}
@@ -72,8 +110,8 @@ async function EditListingContent({
             availability_note: listing.availability_note,
             travel_charge_note: listing.travel_charge_note,
             status: listing.status,
-            area_type: areaType,
-            area_id: areaId,
+            photo_urls: listing.photo_urls ?? [],
+            areas,
           }}
         />
       </Panel>
