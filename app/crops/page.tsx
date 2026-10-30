@@ -125,7 +125,7 @@ async function CropsContent({
               }
               body={
                 locale === "te"
-                  ? "ఫిల్టర్లు మార్చండి లేదా తర్వాత మళ్లీ చూడండి."
+                  ? "శోధన మార్చండి లేదా తర్వాత మళ్లీ చూడండి."
                   : "Try different filters or check again later."
               }
               action={

@@ -127,7 +127,7 @@ async function ProfileContent({
     },
     {
       href: "/jobs/new",
-      label: locale === "te" ? "ఫార్మ్ జాబ్ పోస్ట్" : "Post a farm job",
+      label: locale === "te" ? "పొలం పని పోస్ట్" : "Post a farm job",
       show: user.roles.includes("farmer"),
     },
     {
@@ -234,7 +234,7 @@ export default function ProfilePage({
   searchParams: Promise<{ welcome?: string }>;
 }) {
   return (
-    <Suspense fallback={<PageFallback title="My work" />}>
+    <Suspense fallback={<PageFallback title="My account" />}>
       <ProfileContent searchParams={searchParams} />
     </Suspense>
   );

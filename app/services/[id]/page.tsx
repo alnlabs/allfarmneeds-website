@@ -204,7 +204,7 @@ async function ServiceDetailContent({
           {providerProfile?.about ? (
             <div className="mt-6 border-t border-border pt-4">
               <h2 className="font-medium">
-                {locale === "te" ? "ప్రొవైడర్ గురించి" : "About the provider"}
+                {locale === "te" ? "సేవాదారు గురించి" : "About the provider"}
               </h2>
               <p className="mt-2 whitespace-pre-wrap text-sm text-muted">
                 {providerProfile.about}

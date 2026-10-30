@@ -42,7 +42,10 @@ function detectServiceHint(lower: string): string | null {
   if (/drone|డ్రోన్/.test(lower)) return "drone-spraying";
   if (/drip|sprinkler|డ్రిప్|స్ప్రింక్లర్/.test(lower)) return "drip-sprinkler";
   if (/irrigation|నీటిపారుదల/.test(lower)) return "irrigation";
-  if (/labour|labor|కూలీ/.test(lower) && /service|సేవ/.test(lower)) {
+  if (
+    /labour|labor|farm.?worker|పని\s*వారు|పనివారు|పని\s*మనుషులు/.test(lower) &&
+    /service|సేవ/.test(lower)
+  ) {
     return "farm-labour";
   }
   if (/harvester|హార్వెస్టర్/.test(lower)) return "harvester";
@@ -81,8 +84,8 @@ export function parseAgriIntent(raw: string): ParsedIntent {
     /(\d+(?:\.\d+)?)\s*(?:tonne|ton|టన్ను)/i,
   ]);
   const workers = extractNumber(lower, [
-    /(\d+)\s*(?:workers?|people|మంది|కూలీలు)/i,
-    /(?:workers?|people|మంది|కూలీలు)\s*(\d+)/i,
+    /(\d+)\s*(?:workers?|people|మంది|పని\s*వారు|పనివారు)/i,
+    /(?:workers?|people|మంది|పని\s*వారు|పనివారు)\s*(\d+)/i,
   ]);
 
   const serviceHint = detectServiceHint(lower);
@@ -92,10 +95,11 @@ export function parseAgriIntent(raw: string): ParsedIntent {
   const wantsSell =
     /sell|selling|అమ్మ|అమ్మడానికి|అమ్మాలి|produce listing|crop listing/.test(lower);
   const wantsJob =
-    /job|hire workers|need workers|కూలీలు కావాలి|ఉద్యోగం|పనికి మనుషులు|workers for/.test(
+    /job|hire workers|need workers|farm workers?|పని\s*వారు\s*కావాలి|పనివారు\s*కావాలి|ఉద్యోగం|పనికి మనుషులు|పొలం పని|workers for/.test(
       lower,
     ) ||
-    (workers != null && /కూలీ|worker|మంది/.test(lower));
+    (workers != null &&
+      /worker|మంది|పని\s*వారు|పనివారు|పని\s*మనుషులు/.test(lower));
   const wantsService =
     /find|need|looking for|search|సేవ|కావాలి|దగ్గర|near/.test(lower) &&
     (serviceHint != null ||

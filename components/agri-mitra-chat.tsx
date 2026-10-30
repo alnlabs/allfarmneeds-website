@@ -185,7 +185,7 @@ export function AgriMitraChat({
     locale === "te"
       ? [
           "ట్రాక్టర్ కావాలి",
-          "పత్తికి పది మంది కూలీలు",
+          "పత్తికి పది మంది పని వారు",
           "20 క్వింటాల్ వరి అమ్మాలి",
           "నా సందేశాలు",
         ]
@@ -226,7 +226,7 @@ export function AgriMitraChat({
               href="/explore"
               className="inline-flex text-accent-strong underline-offset-2 hover:underline"
             >
-              {locale === "te" ? "మార్కెట్ అన్వేషించండి" : "Explore marketplace"}
+              {locale === "te" ? "వేదికను చూడండి" : "Explore marketplace"}
             </Link>
           </div>
         ) : (
@@ -262,7 +262,7 @@ export function AgriMitraChat({
         const kind =
           confirmation.action_type === "publish_farm_job"
             ? locale === "te"
-              ? "ఫార్మ్ జాబ్ ప్రచురణ"
+              ? "పొలం పని ప్రచురణ"
               : "Publish farm job"
             : locale === "te"
               ? "పంట జాబితా ప్రచురణ"
@@ -356,7 +356,7 @@ export function AgriMitraChat({
             onChange={(event) => setText(event.target.value)}
             placeholder={
               locale === "te"
-                ? "రేపు పత్తి తీయడానికి పది మంది కూలీలు కావాలి"
+                ? "రేపు పత్తి తీయడానికి పది మంది పని వారు కావాలి"
                 : "I need a tractor near my village"
             }
           />

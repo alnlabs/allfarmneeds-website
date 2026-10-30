@@ -196,7 +196,7 @@ export async function runAgriTool(
       assistantMessage: copy(
         locale,
         `I prepared a farm job draft. Review and confirm to publish for staff moderation:\n• Title: ${title}\n• Workers: ${workers}\n• Category: ${category?.name_en ?? "Other"}`,
-        `ఉద్యోగ డ్రాఫ్ట్ సిద్ధం. ప్రచురించడానికి నిర్ధారించండి (స్టాఫ్ మోడరేషన్):\n• శీర్షిక: ${title}\n• కూలీలు: ${workers}\n• వర్గం: ${category?.name_te ?? "ఇతర"}`,
+        `పొలం పని డ్రాఫ్ట్ సిద్ధం. ప్రచురించడానికి నిర్ధారించండి (మా బృందం సమీక్ష):\n• శీర్షిక: ${title}\n• పని వారు: ${workers}\n• వర్గం: ${category?.name_te ?? "ఇతర"}`,
       ),
       toolName: "draft_farm_job",
       toolPayload: payload,
@@ -254,7 +254,7 @@ export async function runAgriTool(
     assistantMessage: copy(
       locale,
       "I did not understand that yet. Try: find tractor, need 10 workers for cotton, sell 20 quintals paddy, or read my messages.",
-      "అర్థం కాలేదు. ఉదాహరణ: ట్రాక్టర్ కావాలి, పత్తికి 10 మంది కూలీలు, 20 క్వింటాల్ వరి అమ్మాలి, లేదా నా సందేశాలు.",
+      "అర్థం కాలేదు. ఉదాహరణ: ట్రాక్టర్ కావాలి, పత్తికి 10 మంది పని వారు, 20 క్వింటాల్ వరి అమ్మాలి, లేదా నా సందేశాలు.",
     ),
   };
 }

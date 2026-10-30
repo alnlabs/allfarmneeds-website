@@ -31,8 +31,8 @@ async function LoginContent({
     params.error === "google"
       ? params.message ||
         (locale === "te"
-          ? "Google సైన్-ఇన్ ఇంకా కాన్ఫిగర్ కాలేదు. Supabase Authలో Google ప్రొవైడర్ ఆన్ చేయండి."
-          : "Google sign-in is not configured yet. Enable the Google provider in Supabase Auth.")
+          ? "Google సైన్-ఇన్ ఇప్పుడు అందుబాటులో లేదు. తర్వాత మళ్లీ ప్రయత్నించండి లేదా ఇమెయిల్ కోడ్ వాడండి."
+          : "Google sign-in is not available yet. Try again later or use an email code.")
       : params.error
         ? locale === "te"
           ? "సైన్-ఇన్ విఫలమైంది లేదా గడువు ముగిసింది. Google మళ్లీ ప్రయత్నించండి లేదా కొత్త ఇమెయిల్ కోడ్ అడగండి."

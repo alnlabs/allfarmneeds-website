@@ -497,7 +497,7 @@ speech technology performs reliably.
 
 Farmer says:
 
-> "రేపు పత్తి తీయడానికి పది మంది కూలీలు కావాలి."
+> "రేపు పత్తి తీయడానికి పది మంది పని వారు కావాలి."
 
 Assistant workflow:
 

@@ -1,7 +1,7 @@
 # AllFarmNeeds — Terminology Standard (DRAFT — pending approval)
 
-**Status:** Draft. Source of truth after product owner signs off on `docs/TERMINOLOGY_AUDIT_REPORT.md`.  
-**Do not treat as final until approval checklist in the audit report is completed.**
+**Status:** Applied 2026-10-30 (recommended defaults from audit).  
+**See also:** `docs/TERMINOLOGY_IMPLEMENTATION_REPORT.md`
 
 ---
 

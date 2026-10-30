@@ -773,7 +773,7 @@ values
   ('irrigation', 'Irrigation installation and repair', 'నీటిపారుదల'),
   ('borewell-pump', 'Borewell and pump services', 'బోరుబావి మరియు మోటారు'),
   ('drip-sprinkler', 'Drip and sprinkler systems', 'డ్రిప్ మరియు స్ప్రింక్లర్'),
-  ('farm-labour', 'Farm labour services', 'వ్యవసాయ కూలీలు'),
+  ('farm-labour', 'Farm worker services', 'వ్యవసాయ పని సేవలు'),
   ('transport', 'Transport', 'రవాణా'),
   ('repairs', 'Machinery and electrical repairs', 'మరమ్మత్తులు'),
   ('fencing-sheds', 'Fencing and farm sheds', 'కంచె మరియు షెడ్లు'),

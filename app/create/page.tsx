@@ -23,17 +23,17 @@ async function CreateContent() {
       title: locale === "te" ? "సేవా జాబితా" : "New service listing",
       body:
         locale === "te"
-          ? "ట్రాక్టర్, కూలీ లేదా ఇతర సేవలు ప్రచురించండి."
-          : "Publish tractor, labour or other farm services.",
+          ? "ట్రాక్టర్, పని వారు లేదా ఇతర సేవలు ప్రచురించండి."
+          : "Publish tractor, farm-worker or other farm services.",
     },
     {
       show: user.roles.includes("farmer"),
       href: "/jobs/new",
-      title: locale === "te" ? "ఫార్మ్ జాబ్" : "Post a farm job",
+      title: locale === "te" ? "పొలం పని" : "Post a farm job",
       body:
         locale === "te"
-          ? "కూలీలను నియమించడానికి ఉద్యోగం పోస్ట్ చేయండి."
-          : "Hire workers near your village.",
+          ? "పని వారిని నియమించడానికి పొలం పని పోస్ట్ చేయండి."
+          : "Hire farm workers near your village.",
     },
     {
       show: user.roles.includes("farmer"),
@@ -92,8 +92,8 @@ async function CreateContent() {
           }
           body={
             locale === "te"
-              ? "రైతు, కూలీ, ప్రొవైడర్ లేదా కొనుగోలుదారు పాత్ర అవసరం."
-              : "Add farmer, worker, provider or buyer role first."
+              ? "రైతు, పని వారు, సేవాదారు లేదా కొనుగోలుదారు పాత్ర అవసరం."
+              : "Add farmer, farm worker, service provider or buyer role first."
           }
           action={
             <Link

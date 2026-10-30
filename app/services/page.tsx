@@ -165,7 +165,7 @@ async function ServicesResults({
         title={copy.noServices}
         body={
           locale === "te"
-            ? "ఫిల్టర్లు మార్చండి లేదా మార్కెట్‌లో ఇతర మాడ్యూల్స్ చూడండి."
+            ? "శోధన మార్చండి లేదా వేదికలో ఇతర విభాగాలు చూడండి."
             : "Try different filters, or browse other marketplace modules."
         }
         action={
