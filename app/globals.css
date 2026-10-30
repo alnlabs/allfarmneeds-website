@@ -10,6 +10,8 @@
   --accent-strong: #1b522a;
   --accent-soft: #e8f0e5;
   --radius-card: 1rem;
+  /* Wider than Tailwind 7xl so desktop does not feel “shrunk”. */
+  --content-max: 96rem;
 }
 
 @theme inline {

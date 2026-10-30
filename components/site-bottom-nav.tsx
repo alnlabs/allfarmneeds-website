@@ -67,7 +67,7 @@ function BottomNavInner({ signedIn = false }: SiteBottomNavProps) {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
       aria-label={copy.navHome}
     >
-      <div className="mx-auto flex w-full max-w-7xl items-stretch">
+      <div className="mx-auto flex w-full max-w-[var(--content-max)] items-stretch">
         {items.map((item) => (
           <NavItem
             key={item.label}
@@ -105,7 +105,7 @@ function BottomNavFallback({ signedIn = false }: SiteBottomNavProps) {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
       aria-label={copy.navHome}
     >
-      <div className="mx-auto flex w-full max-w-7xl items-stretch">
+      <div className="mx-auto flex w-full max-w-[var(--content-max)] items-stretch">
         {items.map((item) => (
           <NavItem
             key={item.label}

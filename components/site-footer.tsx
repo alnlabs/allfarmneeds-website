@@ -8,7 +8,7 @@ export function SiteFooter({ signedIn = false }: { signedIn?: boolean }) {
 
   return (
     <footer className="mt-auto border-t border-border bg-white">
-      <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:px-6 md:grid-cols-3 lg:px-8">
+      <div className="mx-auto grid w-full max-w-[var(--content-max)] gap-8 px-4 py-8 sm:px-6 md:grid-cols-3 lg:px-8 xl:px-10">
         <div>
           <p className="text-lg font-semibold text-accent-strong">AllFarmNeeds</p>
           <p className="mt-2 text-sm text-muted">{copy.tagline}</p>

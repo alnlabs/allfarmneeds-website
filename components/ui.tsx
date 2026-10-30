@@ -13,14 +13,14 @@ export function PageShell({
   actions?: ReactNode;
 }) {
   return (
-    <main className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <main className="mx-auto w-full min-w-0 max-w-[var(--content-max)] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 xl:px-10">
       <div className="mb-6 flex flex-col gap-4 sm:mb-8 md:flex-row md:flex-wrap md:items-end md:justify-between">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-accent-strong break-words sm:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-accent-strong break-words sm:text-3xl lg:text-4xl">
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-2 max-w-2xl break-words text-sm text-muted sm:text-base">
+            <p className="mt-2 max-w-3xl break-words text-sm text-muted sm:text-base lg:text-lg">
               {subtitle}
             </p>
           ) : null}
@@ -206,9 +206,13 @@ export function ListingCard({
       ) : null}
       <div className="min-w-0 flex-1">
         {eyebrow ? <div className="text-sm text-muted">{eyebrow}</div> : null}
-        <h2 className="mt-0.5 text-lg font-semibold sm:text-xl">{title}</h2>
+        <h2 className="mt-0.5 text-lg font-semibold sm:text-xl lg:text-2xl">
+          {title}
+        </h2>
         {description ? (
-          <p className="mt-2 line-clamp-2 text-sm text-muted">{description}</p>
+          <p className="mt-2 line-clamp-2 text-sm text-muted sm:text-base">
+            {description}
+          </p>
         ) : null}
         {meta ? (
           <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted">

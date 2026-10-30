@@ -236,7 +236,7 @@ export function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white">
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full min-w-0 max-w-[var(--content-max)] items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6 lg:px-8 xl:px-10">
         <div className="min-w-0 flex-1">
           <Link
             href="/"
@@ -280,7 +280,7 @@ export function SiteHeader({
 
       {/* Desktop: main app nav only — marketplace via Explore */}
       <div className="hidden border-t border-border lg:block">
-        <nav className="mx-auto flex w-full max-w-7xl items-center gap-1 px-4 py-2 sm:px-6 lg:px-8">
+        <nav className="mx-auto flex w-full max-w-[var(--content-max)] items-center gap-1 px-4 py-2 sm:px-6 lg:px-8 xl:px-10">
           <NavLink href="/">{copy.navHome}</NavLink>
           <NavLink href="/explore">{copy.navExplore}</NavLink>
           <NavLink href="/create">{copy.navCreate}</NavLink>

@@ -115,14 +115,14 @@ async function HomeContent() {
     "inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 py-2.5 text-center text-sm font-medium sm:w-auto";
 
   return (
-    <main className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <main className="mx-auto w-full min-w-0 max-w-[var(--content-max)] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 xl:px-10">
       {/* B. Task-oriented hero — brand stays in header */}
       <section className="mb-8 space-y-5">
-        <div className="max-w-2xl">
-          <h1 className="text-2xl font-semibold tracking-tight text-accent-strong break-words sm:text-3xl">
+        <div className="max-w-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-accent-strong break-words sm:text-3xl lg:text-4xl">
             {copy.homeHeadline}
           </h1>
-          <p className="mt-2 break-words text-sm text-muted sm:text-base">
+          <p className="mt-2 break-words text-sm text-muted sm:text-base lg:text-lg">
             {copy.homeSubtitle}
           </p>
         </div>
@@ -174,10 +174,10 @@ async function HomeContent() {
               className="min-w-0 rounded-2xl border border-border bg-white p-3 transition hover:border-accent sm:p-5"
             >
               <p className="truncate text-xs text-muted sm:text-sm">{module.alt}</p>
-              <h3 className="mt-1 break-words text-sm font-semibold leading-snug sm:text-xl">
+              <h3 className="mt-1 break-words text-base font-semibold leading-snug sm:text-xl lg:text-2xl">
                 {module.title}
               </h3>
-              <p className="mt-2 line-clamp-3 break-words text-xs text-muted sm:text-sm">
+              <p className="mt-2 line-clamp-3 break-words text-sm text-muted sm:text-base">
                 {module.body}
               </p>
             </Link>

@@ -14,7 +14,7 @@ export function LanguageSwitcher() {
   return (
     <div className="flex max-w-full items-center gap-2 text-sm">
       <span
-        className="hidden max-w-[10rem] truncate text-muted md:inline lg:max-w-[16rem]"
+        className="hidden max-w-[12rem] truncate text-muted md:inline lg:max-w-[20rem] xl:max-w-[24rem]"
         title={locationLabel ?? locationText}
       >
         {locationText}
