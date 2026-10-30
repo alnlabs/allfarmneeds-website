@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { PageFallback } from "@/components/page-fallback";
 import { PageShell, Panel, Select, TextInput } from "@/components/ui";
+import { categoryLabel, t, type Locale } from "@/lib/locale";
+import { getRequestLocale } from "@/lib/locale-server";
 import { formatArea } from "@/lib/locations";
 import { createClient } from "@/utils/supabase/server";
 
@@ -12,6 +14,7 @@ async function ServicesResults({
   villageId,
   query,
   verifiedOnly,
+  locale,
 }: {
   categoryId?: number;
   districtId?: number;
@@ -19,7 +22,9 @@ async function ServicesResults({
   villageId?: number;
   query?: string;
   verifiedOnly: boolean;
+  locale: Locale;
 }) {
+  const copy = t(locale);
   const supabase = await createClient();
 
   let villageIdsInDistrict: number[] = [];
@@ -150,10 +155,7 @@ async function ServicesResults({
   if (filtered.length === 0) {
     return (
       <Panel>
-        <p className="text-muted">
-          No published services match these filters yet. Providers can add
-          listings after signing in.
-        </p>
+        <p className="text-muted">{copy.noServices}</p>
       </Panel>
     );
   }
@@ -192,8 +194,11 @@ async function ServicesResults({
             <div className="min-w-0 flex-1">
               <p className="text-sm text-muted">
                 {category
-                  ? `${category.name_te} — ${category.name_en}`
-                  : "Service"}
+                  ? (() => {
+                      const label = categoryLabel(locale, category);
+                      return `${label.primary} — ${label.secondary}`;
+                    })()
+                  : copy.farmServices}
               </p>
               <h2 className="mt-1 text-xl font-semibold">{listing.title}</h2>
               <p className="mt-2 line-clamp-2 text-sm text-muted">
@@ -240,6 +245,8 @@ async function ServicesPageContent({
   const villageId = params.village ? Number(params.village) : undefined;
   const query = params.q?.trim() || undefined;
   const verifiedOnly = params.verified === "1";
+  const { locale } = await getRequestLocale();
+  const copy = t(locale);
 
   const supabase = await createClient();
   const [{ data: categories }, { data: districts }, { data: mandals }, { data: villages }] =
@@ -265,35 +272,35 @@ async function ServicesPageContent({
   );
 
   return (
-    <PageShell
-      title="Agricultural services"
-      subtitle="Search approved services by category and location. Contact providers by call, WhatsApp, booking request or enquiry."
-    >
+    <PageShell title={copy.servicesTitle} subtitle={copy.servicesSubtitle}>
       <Panel>
-        <form className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          <label className="space-y-2 text-sm md:col-span-2 lg:col-span-3">
-            <span className="font-medium">Search</span>
+        <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <label className="space-y-2 text-sm sm:col-span-2 lg:col-span-4">
+            <span className="font-medium">{copy.search}</span>
             <TextInput
               name="q"
               defaultValue={query ?? ""}
-              placeholder="Tractor, drip, labour…"
+              placeholder={copy.searchPlaceholder}
             />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Category</span>
+            <span className="font-medium">{copy.category}</span>
             <Select name="category" defaultValue={categoryId ?? ""}>
-              <option value="">All categories</option>
-              {categories?.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name_te} — {category.name_en}
-                </option>
-              ))}
+              <option value="">{copy.allCategories}</option>
+              {categories?.map((category) => {
+                const label = categoryLabel(locale, category);
+                return (
+                  <option key={category.id} value={category.id}>
+                    {label.primary} — {label.secondary}
+                  </option>
+                );
+              })}
             </Select>
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">District</span>
+            <span className="font-medium">{copy.district}</span>
             <Select name="district" defaultValue={districtId ?? ""}>
-              <option value="">All districts</option>
+              <option value="">{copy.allDistricts}</option>
               {districts?.map((district) => {
                 const state = Array.isArray(district.states)
                   ? district.states[0]
@@ -308,9 +315,9 @@ async function ServicesPageContent({
             </Select>
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Mandal</span>
+            <span className="font-medium">{copy.mandal}</span>
             <Select name="mandal" defaultValue={mandalId ?? ""}>
-              <option value="">All mandals</option>
+              <option value="">{copy.allMandals}</option>
               {filteredMandals.map((mandal) => (
                 <option key={mandal.id} value={mandal.id}>
                   {mandal.name}
@@ -319,9 +326,9 @@ async function ServicesPageContent({
             </Select>
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Village / town</span>
+            <span className="font-medium">{copy.village}</span>
             <Select name="village" defaultValue={villageId ?? ""}>
-              <option value="">All villages</option>
+              <option value="">{copy.allVillages}</option>
               {filteredVillages.map((village) => (
                 <option key={village.id} value={village.id}>
                   {village.name}
@@ -336,14 +343,14 @@ async function ServicesPageContent({
               value="1"
               defaultChecked={verifiedOnly}
             />
-            <span>Verified providers only</span>
+            <span>{copy.verifiedOnly}</span>
           </label>
           <div className="flex items-end">
             <button
               type="submit"
               className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
-              Apply filters
+              {copy.applyFilters}
             </button>
           </div>
         </form>
@@ -357,6 +364,7 @@ async function ServicesPageContent({
           villageId={villageId}
           query={query}
           verifiedOnly={verifiedOnly}
+          locale={locale}
         />
       </div>
     </PageShell>
