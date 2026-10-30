@@ -9,7 +9,7 @@ import {
   StatusBadge,
 } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { t } from "@/lib/locale";
+import { statusLabel, statusTone, t } from "@/lib/locale";
 import { getRequestLocale } from "@/lib/locale-server";
 import { createClient } from "@/utils/supabase/server";
 
@@ -41,11 +41,7 @@ async function MessagesContent() {
   return (
     <PageShell
       title={copy.messages}
-      subtitle={
-        locale === "te"
-          ? "సేవలు, ఉద్యోగాలు మరియు జాబితాల గురించి సందేశాలు."
-          : "Enquiries about services, jobs and listings."
-      }
+      subtitle={copy.inboxExplainer}
     >
       {error ? <p className="text-red-700">{error.message}</p> : null}
       <div className="space-y-3">
@@ -54,10 +50,15 @@ async function MessagesContent() {
             title={
               locale === "te" ? "ఇంకా సందేశాలు లేవు." : "No enquiries yet."
             }
+            body={
+              locale === "te"
+                ? "సేవలు లేదా జాబితాల నుండి సంప్రదించినప్పుడు సందేశాలు ఇక్కడ కనిపిస్తాయి."
+                : "When you contact a listing, enquiries appear here. Alerts for bookings stay under Notifications in My work."
+            }
             action={
               <Link
                 href="/explore"
-                className="inline-flex rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
+                className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
               >
                 {copy.navExplore}
               </Link>
@@ -84,10 +85,8 @@ async function MessagesContent() {
                 eyebrow={
                   <span className="inline-flex flex-wrap items-center gap-2">
                     <span>{direction}</span>
-                    <StatusBadge
-                      tone={enquiry.status === "open" ? "success" : "neutral"}
-                    >
-                      {enquiry.status}
+                    <StatusBadge tone={statusTone(enquiry.status)}>
+                      {statusLabel(locale, enquiry.status)}
                     </StatusBadge>
                   </span>
                 }

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { requireUser } from "@/lib/auth";
-import { safeInternalPath } from "@/lib/redirect";
+import { pathAfterRoles, safeInternalPath } from "@/lib/redirect";
 import { getSiteUrl } from "@/lib/site";
 
 export type AuthActionState = {
@@ -83,7 +83,7 @@ export async function verifyLoginCode(
     redirect(`/onboarding/roles?next=${encodeURIComponent(next)}`);
   }
 
-  redirect(next);
+  redirect(pathAfterRoles(user.roles, next));
 }
 
 export async function signInWithGoogle(formData: FormData) {

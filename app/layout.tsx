@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense, type ReactNode } from "react";
 import { LocaleProvider } from "@/components/locale-provider";
+import { SiteBottomNav } from "@/components/site-bottom-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { requireUser } from "@/lib/auth";
@@ -46,6 +47,17 @@ async function Header() {
   );
 }
 
+async function ChromeExtras() {
+  const user = await requireUser();
+  const signedIn = Boolean(user);
+  return (
+    <>
+      <SiteFooter signedIn={signedIn} />
+      <SiteBottomNav signedIn={signedIn} />
+    </>
+  );
+}
+
 function AppChrome({
   locale,
   locationLabel,
@@ -66,8 +78,17 @@ function AppChrome({
       <Suspense fallback={<SiteHeader />}>
         <Header />
       </Suspense>
-      <div className="flex-1 bg-background">{children}</div>
-      <SiteFooter />
+      <div className="flex-1 bg-background pb-20 lg:pb-0">{children}</div>
+      <Suspense
+        fallback={
+          <>
+            <SiteFooter />
+            <SiteBottomNav />
+          </>
+        }
+      >
+        <ChromeExtras />
+      </Suspense>
     </LocaleProvider>
   );
 }

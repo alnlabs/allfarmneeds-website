@@ -7,6 +7,7 @@ import {
   ListingCard,
   PageShell,
   Select,
+  TextInput,
 } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { t } from "@/lib/locale";
@@ -16,10 +17,11 @@ import { createClient } from "@/utils/supabase/server";
 async function BuyersContent({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const categoryId = params.category ? Number(params.category) : undefined;
+  const query = params.q?.trim() || undefined;
   const { locale } = await getRequestLocale();
   const copy = t(locale);
   const user = await requireUser();
@@ -31,7 +33,7 @@ async function BuyersContent({
       .select("id, name_en, name_te")
       .order("name_en"),
     (async () => {
-      let query = supabase
+      let requirements = supabase
         .from("buyer_requirements")
         .select(
           `
@@ -54,8 +56,13 @@ async function BuyersContent({
         .eq("status", "published")
         .eq("moderation_status", "approved")
         .order("updated_at", { ascending: false });
-      if (categoryId) query = query.eq("category_id", categoryId);
-      return query;
+      if (categoryId) requirements = requirements.eq("category_id", categoryId);
+      if (query) {
+        requirements = requirements.or(
+          `title.ilike.%${query}%,description.ilike.%${query}%`,
+        );
+      }
+      return requirements;
     })(),
   ]);
 
@@ -67,16 +74,12 @@ async function BuyersContent({
   return (
     <PageShell
       title={copy.modules.buyersTraders.title}
-      subtitle={
-        locale === "te"
-          ? "ఆమోదించిన కొనుగోలు అవసరాలు చూడండి మరియు సరఫరా ఆఫర్ పంపండి."
-          : "Browse approved purchase requirements and send supply offers."
-      }
+      subtitle={copy.buyersBrowseSubtitle}
       actions={
         canPost ? (
           <Link
             href="/buyers/new"
-            className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+            className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
           >
             {locale === "te" ? "అవసరం పోస్ట్ చేయండి" : "Post requirement"}
           </Link>
@@ -86,6 +89,14 @@ async function BuyersContent({
       <div className="grid gap-6 lg:grid-cols-[minmax(14rem,18rem)_1fr]">
         <FilterPanel title={copy.filters}>
           <form className="grid gap-3">
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.search}</span>
+              <TextInput
+                name="q"
+                defaultValue={query ?? ""}
+                placeholder={copy.searchPlaceholder}
+              />
+            </label>
             <label className="space-y-2 text-sm">
               <span className="font-medium">{copy.category}</span>
               <Select name="category" defaultValue={categoryId ?? ""}>
@@ -101,7 +112,7 @@ async function BuyersContent({
             </label>
             <button
               type="submit"
-              className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+              className="min-h-11 w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
               {copy.applyFilters}
             </button>
@@ -115,17 +126,29 @@ async function BuyersContent({
               title={
                 locale === "te"
                   ? "ఇంకా ఆమోదించిన కొనుగోలు అవసరాలు లేవు."
-                  : "No approved purchase requirements match these filters yet."
+                  : "No approved purchase needs match these filters yet."
+              }
+              body={
+                locale === "te"
+                  ? "ఫిల్టర్లు మార్చండి లేదా తర్వాత మళ్లీ చూడండి."
+                  : "Try different filters or check again later."
               }
               action={
                 canPost ? (
                   <Link
                     href="/buyers/new"
-                    className="inline-flex rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+                    className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
                   >
                     {locale === "te" ? "అవసరం పోస్ట్ చేయండి" : "Post requirement"}
                   </Link>
-                ) : null
+                ) : (
+                  <Link
+                    href="/explore"
+                    className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
+                  >
+                    {copy.browseMarketplace}
+                  </Link>
+                )
               }
             />
           ) : (
@@ -153,12 +176,17 @@ async function BuyersContent({
                     ? `${category.name_te} — ${category.name_en}`
                     : `${category.name_en} — ${category.name_te}`
                   : copy.modules.buyersTraders.title;
+                const buyerType = nestedBuyer?.business_type;
 
                 return (
                   <ListingCard
                     key={requirement.id}
                     href={`/buyers/${requirement.id}`}
-                    eyebrow={eyebrow}
+                    eyebrow={
+                      buyerType
+                        ? `${eyebrow} · ${buyerType}`
+                        : eyebrow
+                    }
                     title={requirement.title}
                     description={requirement.description || undefined}
                     meta={
@@ -170,8 +198,8 @@ async function BuyersContent({
                           </span>
                         ) : null}
                         {requirement.expected_price != null ? (
-                          <span>
-                            ₹{requirement.expected_price}
+                          <span className="font-medium text-foreground">
+                            {copy.expectedPrice}: ₹{requirement.expected_price}
                             {requirement.price_unit
                               ? ` / ${requirement.price_unit}`
                               : ""}
@@ -183,7 +211,7 @@ async function BuyersContent({
                         <span>
                           {nestedBuyer?.business_name ||
                             profile?.display_name ||
-                            "Buyer"}
+                            copy.buyer}
                         </span>
                       </>
                     }
@@ -201,10 +229,10 @@ async function BuyersContent({
 export default function BuyersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   return (
-    <Suspense fallback={<PageFallback title="Buyers & Traders" />}>
+    <Suspense fallback={<PageFallback title="Purchase needs" />}>
       <BuyersContent searchParams={searchParams} />
     </Suspense>
   );

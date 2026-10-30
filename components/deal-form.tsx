@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createProductDeal, type ProductActionState } from "@/app/actions/products";
+import { useLocale } from "@/components/locale-provider";
 import { Field, Notice, PrimaryButton, TextArea, TextInput } from "@/components/ui";
 
 const initialState: ProductActionState = {};
@@ -18,17 +19,26 @@ export function DealForm({
   minimumOrder?: number | null;
 }) {
   const [state, action, pending] = useActionState(createProductDeal, initialState);
+  const { copy, locale } = useLocale();
 
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="listing_id" value={listingId} />
       {state.error ? <Notice tone="error">{state.error}</Notice> : null}
       <Field
-        label={`Quantity (${quantityUnit})`}
+        label={
+          locale === "te"
+            ? `పరిమాణం (${quantityUnit})`
+            : `Quantity (${quantityUnit})`
+        }
         hint={
           minimumOrder
-            ? `Available ${maxQuantity}. Minimum ${minimumOrder}.`
-            : `Available ${maxQuantity}.`
+            ? locale === "te"
+              ? `అందుబాటు ${maxQuantity}. కనీసం ${minimumOrder}.`
+              : `Available ${maxQuantity}. Minimum ${minimumOrder}.`
+            : locale === "te"
+              ? `అందుబాటు ${maxQuantity}.`
+              : `Available ${maxQuantity}.`
         }
       >
         <TextInput
@@ -41,15 +51,25 @@ export function DealForm({
           defaultValue={minimumOrder ?? Math.min(1, maxQuantity)}
         />
       </Field>
-      <Field label="Message to seller">
-        <TextArea name="message" rows={3} placeholder="Pickup timing, quality notes…" />
+      <Field label={copy.messageToSeller}>
+        <TextArea
+          name="message"
+          rows={3}
+          placeholder={
+            locale === "te"
+              ? "పికప్ సమయం, నాణ్యత గమనికలు…"
+              : "Pickup timing, quality notes…"
+          }
+        />
       </Field>
-      <PrimaryButton type="submit" disabled={pending || maxQuantity <= 0}>
-        {pending ? "Reserving…" : "Reserve quantity"}
+      <PrimaryButton
+        type="submit"
+        disabled={pending || maxQuantity <= 0}
+        className="min-h-11 w-full sm:w-auto"
+      >
+        {pending ? copy.holdingQuantity : copy.holdQuantity}
       </PrimaryButton>
-      <p className="text-xs text-muted">
-        Reserving holds stock immediately so it cannot be oversold. Cancel later to release it.
-      </p>
+      <p className="text-xs text-muted">{copy.holdQuantityHint}</p>
     </form>
   );
 }

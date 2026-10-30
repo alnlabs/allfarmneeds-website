@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import type { AppRole } from "@/lib/auth";
+import { pathAfterRoles, safeInternalPath } from "@/lib/redirect";
 import { createClient } from "@/utils/supabase/server";
-import { safeInternalPath } from "@/lib/redirect";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -21,11 +22,15 @@ export async function GET(request: Request) {
           .from("user_roles")
           .select("role")
           .eq("user_id", userId);
-        if (!roles?.length) {
+        const roleList = (roles ?? []).map((row) => row.role as AppRole);
+        if (!roleList.length) {
           return NextResponse.redirect(
             `${origin}/onboarding/roles?next=${encodeURIComponent(next)}`,
           );
         }
+        return NextResponse.redirect(
+          `${origin}${pathAfterRoles(roleList, next)}`,
+        );
       }
       return NextResponse.redirect(`${origin}${next}`);
     }

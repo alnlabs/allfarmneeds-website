@@ -7,19 +7,21 @@ import {
   ListingCard,
   PageShell,
   Select,
+  TextInput,
 } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { t } from "@/lib/locale";
+import { paymentModelLabel, t } from "@/lib/locale";
 import { getRequestLocale } from "@/lib/locale-server";
 import { createClient } from "@/utils/supabase/server";
 
 async function JobsContent({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const categoryId = params.category ? Number(params.category) : undefined;
+  const query = params.q?.trim() || undefined;
   const { locale } = await getRequestLocale();
   const copy = t(locale);
   const user = await requireUser();
@@ -31,7 +33,7 @@ async function JobsContent({
       .select("id, name_en, name_te")
       .order("name_en"),
     (async () => {
-      let query = supabase
+      let jobs = supabase
         .from("farm_jobs")
         .select(
           `
@@ -50,8 +52,11 @@ async function JobsContent({
         .eq("status", "published")
         .eq("moderation_status", "approved")
         .order("work_date", { ascending: true, nullsFirst: false });
-      if (categoryId) query = query.eq("category_id", categoryId);
-      return query;
+      if (categoryId) jobs = jobs.eq("category_id", categoryId);
+      if (query) {
+        jobs = jobs.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
+      }
+      return jobs;
     })(),
   ]);
 
@@ -60,17 +65,13 @@ async function JobsContent({
   return (
     <PageShell
       title={copy.modules.farmJobs.title}
-      subtitle={
-        locale === "te"
-          ? "ఆమోదించిన పొలం పనులు చూడండి మరియు దరఖాస్తు చేయండి."
-          : "Browse approved farm jobs near you and apply as a worker."
-      }
+      subtitle={copy.jobsBrowseSubtitle}
       actions={
         <>
           {user?.roles.includes("farmer") ? (
             <Link
               href="/jobs/new"
-              className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+              className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
               {locale === "te" ? "కొత్త జాబ్" : "Post a job"}
             </Link>
@@ -79,7 +80,7 @@ async function JobsContent({
           user?.roles.includes("labour_contractor") ? (
             <Link
               href="/worker/profile"
-              className="rounded-xl border border-border bg-white px-4 py-2.5 hover:bg-accent-soft"
+              className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 hover:bg-accent-soft"
             >
               {copy.workerProfile}
             </Link>
@@ -90,6 +91,14 @@ async function JobsContent({
       <div className="grid gap-6 lg:grid-cols-[minmax(14rem,18rem)_1fr]">
         <FilterPanel title={copy.filters}>
           <form className="grid gap-3">
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.search}</span>
+              <TextInput
+                name="q"
+                defaultValue={query ?? ""}
+                placeholder={copy.searchPlaceholder}
+              />
+            </label>
             <label className="space-y-2 text-sm">
               <span className="font-medium">{copy.category}</span>
               <Select name="category" defaultValue={categoryId ?? ""}>
@@ -105,7 +114,7 @@ async function JobsContent({
             </label>
             <button
               type="submit"
-              className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+              className="min-h-11 w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
               {copy.applyFilters}
             </button>
@@ -121,15 +130,27 @@ async function JobsContent({
                   ? "ఇంకా ఆమోదించిన జాబ్‌లు లేవు."
                   : "No approved farm jobs match these filters yet."
               }
+              body={
+                locale === "te"
+                  ? "ఫిల్టర్లు మార్చండి లేదా తర్వాత మళ్లీ చూడండి."
+                  : "Try different filters or check again later."
+              }
               action={
                 user?.roles.includes("farmer") ? (
                   <Link
                     href="/jobs/new"
-                    className="inline-flex rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+                    className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
                   >
                     {locale === "te" ? "కొత్త జాబ్" : "Post a job"}
                   </Link>
-                ) : null
+                ) : (
+                  <Link
+                    href="/explore"
+                    className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
+                  >
+                    {copy.browseMarketplace}
+                  </Link>
+                )
               }
             />
           ) : (
@@ -149,6 +170,7 @@ async function JobsContent({
                     ? `${category.name_te} — ${category.name_en}`
                     : `${category.name_en} — ${category.name_te}`
                   : copy.modules.farmJobs.title;
+                const payLabel = paymentModelLabel(locale, job.payment_model);
 
                 return (
                   <ListingCard
@@ -159,19 +181,18 @@ async function JobsContent({
                     description={job.description || undefined}
                     meta={
                       <>
-                        <span>
-                          {job.workers_required}{" "}
-                          {locale === "te" ? "మంది" : "workers"}
-                        </span>
-                        {job.work_date ? <span>{job.work_date}</span> : null}
-                        {village?.name ? <span>{village.name}</span> : null}
                         {job.advertised_amount != null ? (
-                          <span>
+                          <span className="font-medium text-foreground">
                             ₹{job.advertised_amount}
-                            {job.payment_model ? ` / ${job.payment_model}` : ""}
+                            {payLabel ? ` · ${payLabel}` : ""}
                           </span>
                         ) : null}
-                        <span>{farmer?.display_name ?? "Farmer"}</span>
+                        {village?.name ? <span>{village.name}</span> : null}
+                        <span>
+                          {job.workers_required} {copy.workers}
+                        </span>
+                        {job.work_date ? <span>{job.work_date}</span> : null}
+                        <span>{farmer?.display_name ?? copy.farmer}</span>
                       </>
                     }
                   />
@@ -188,7 +209,7 @@ async function JobsContent({
 export default function JobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   return (
     <Suspense fallback={<PageFallback title="Farm Jobs" />}>

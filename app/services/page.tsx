@@ -163,12 +163,17 @@ async function ServicesResults({
     return (
       <EmptyState
         title={copy.noServices}
+        body={
+          locale === "te"
+            ? "ఫిల్టర్లు మార్చండి లేదా మార్కెట్‌లో ఇతర మాడ్యూల్స్ చూడండి."
+            : "Try different filters, or browse other marketplace modules."
+        }
         action={
           <Link
-            href="/create"
-            className="inline-flex rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
+            href="/explore"
+            className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
           >
-            {copy.navCreate}
+            {copy.browseMarketplace}
           </Link>
         }
       />
@@ -211,13 +216,15 @@ async function ServicesResults({
                 <span>
                   {listing.price_amount != null
                     ? `₹${listing.price_amount}${listing.price_unit ? ` / ${listing.price_unit}` : ""}`
-                    : "Price on enquiry"}
+                    : copy.priceOnEnquiry}
                 </span>
-                <span>{area ? formatArea(area) : "Area not set"}</span>
+                <span>{area ? formatArea(area) : copy.areaNotSet}</span>
                 <span>
-                  {provider?.business_name ?? profile?.display_name ?? "Provider"}
+                  {provider?.business_name ??
+                    profile?.display_name ??
+                    copy.provider}
                   {provider?.verification_status === "verified"
-                    ? " · Verified"
+                    ? ` · ${copy.verified}`
                     : ""}
                 </span>
               </>

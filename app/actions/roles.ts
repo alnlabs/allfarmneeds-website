@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { requireUser, type AppRole } from "@/lib/auth";
-import { safeInternalPath } from "@/lib/redirect";
+import { pathAfterRoles, safeInternalPath } from "@/lib/redirect";
 
 const selectableRoles: AppRole[] = [
   "farmer",
@@ -27,7 +27,9 @@ export async function saveRoles(
 
   const selected = selectableRoles.filter((role) => formData.get(role) === "on");
   if (selected.length === 0) {
-    return { error: "Choose at least one role to continue." };
+    return {
+      error: "Choose at least one role to continue. / కనీసం ఒక పాత్ర ఎంచుకోండి.",
+    };
   }
 
   const displayName = String(formData.get("display_name") ?? "").trim();
@@ -96,17 +98,5 @@ export async function saveRoles(
     }
   }
 
-  if (selected.includes("service_provider")) {
-    redirect(`/provider/profile?next=${encodeURIComponent(next)}`);
-  }
-
-  if (selected.includes("worker")) {
-    redirect(`/worker/profile?next=${encodeURIComponent(next)}`);
-  }
-
-  if (selected.includes("buyer")) {
-    redirect(`/buyer/profile?next=${encodeURIComponent(next)}`);
-  }
-
-  redirect(next);
+  redirect(pathAfterRoles(selected, next));
 }

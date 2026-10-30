@@ -4,7 +4,9 @@ import { LoginForm } from "@/components/login-form";
 import { PageFallback } from "@/components/page-fallback";
 import { PageShell, Panel } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { safeInternalPath } from "@/lib/redirect";
+import { t } from "@/lib/locale";
+import { getRequestLocale } from "@/lib/locale-server";
+import { pathAfterRoles, safeInternalPath } from "@/lib/redirect";
 
 async function LoginContent({
   searchParams,
@@ -13,12 +15,14 @@ async function LoginContent({
 }) {
   const params = await searchParams;
   const next = safeInternalPath(params.next);
+  const { locale } = await getRequestLocale();
+  const copy = t(locale);
 
   const user = await requireUser();
   if (user) {
     redirect(
       user.roles.length
-        ? next
+        ? pathAfterRoles(user.roles, next)
         : `/onboarding/roles?next=${encodeURIComponent(next)}`,
     );
   }
@@ -26,16 +30,17 @@ async function LoginContent({
   const errorText =
     params.error === "google"
       ? params.message ||
-        "Google sign-in is not configured yet. Enable the Google provider in Supabase Auth."
+        (locale === "te"
+          ? "Google సైన్-ఇన్ ఇంకా కాన్ఫిగర్ కాలేదు. Supabase Authలో Google ప్రొవైడర్ ఆన్ చేయండి."
+          : "Google sign-in is not configured yet. Enable the Google provider in Supabase Auth.")
       : params.error
-        ? "Sign-in failed or expired. Try Google again or request a new email code."
+        ? locale === "te"
+          ? "సైన్-ఇన్ విఫలమైంది లేదా గడువు ముగిసింది. Google మళ్లీ ప్రయత్నించండి లేదా కొత్త ఇమెయిల్ కోడ్ అడగండి."
+          : "Sign-in failed or expired. Try Google again or request a new email code."
         : null;
 
   return (
-    <PageShell
-      title="Sign in"
-      subtitle="Continue with Google, or use email for a one-time login code."
-    >
+    <PageShell title={copy.loginTitle} subtitle={copy.loginSubtitle}>
       <Panel>
         {errorText ? (
           <p className="mb-4 text-sm text-red-700">{errorText}</p>

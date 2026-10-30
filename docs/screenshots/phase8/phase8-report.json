@@ -1,0 +1,595 @@
+{
+  "capturedAt": "2026-10-30T10:13:14.318Z",
+  "baseUrl": "http://localhost:3000",
+  "overflowFailCount": 0,
+  "smokeFailCount": 0,
+  "overflowReport": [
+    {
+      "width": 320,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "bodyScrollWidth": 320
+    },
+    {
+      "width": 360,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 360,
+      "clientWidth": 360,
+      "bodyScrollWidth": 360
+    },
+    {
+      "width": 375,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "bodyScrollWidth": 375
+    },
+    {
+      "width": 390,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "bodyScrollWidth": 390
+    },
+    {
+      "width": 430,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 430,
+      "clientWidth": 430,
+      "bodyScrollWidth": 430
+    },
+    {
+      "width": 768,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "bodyScrollWidth": 768
+    },
+    {
+      "width": 1024,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 1024,
+      "clientWidth": 1024,
+      "bodyScrollWidth": 1024
+    },
+    {
+      "width": 1280,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "bodyScrollWidth": 1280
+    },
+    {
+      "width": 1440,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "bodyScrollWidth": 1440
+    },
+    {
+      "width": 1920,
+      "route": "home",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "bodyScrollWidth": 1920
+    },
+    {
+      "width": 390,
+      "route": "explore",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "bodyScrollWidth": 390
+    },
+    {
+      "width": 390,
+      "route": "login",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "bodyScrollWidth": 390
+    },
+    {
+      "width": 390,
+      "route": "services",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "bodyScrollWidth": 390
+    },
+    {
+      "width": 768,
+      "route": "explore",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "bodyScrollWidth": 768
+    },
+    {
+      "width": 768,
+      "route": "login",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "bodyScrollWidth": 768
+    },
+    {
+      "width": 768,
+      "route": "services",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "bodyScrollWidth": 768
+    },
+    {
+      "width": 1280,
+      "route": "explore",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "bodyScrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "route": "login",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "bodyScrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "route": "services",
+      "locale": "en",
+      "overflow": false,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "bodyScrollWidth": 1280
+    },
+    {
+      "width": 390,
+      "route": "home",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "bodyScrollWidth": 390
+    },
+    {
+      "width": 390,
+      "route": "explore",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "bodyScrollWidth": 390
+    },
+    {
+      "width": 390,
+      "route": "login",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "bodyScrollWidth": 390
+    },
+    {
+      "width": 390,
+      "route": "services",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "bodyScrollWidth": 390
+    },
+    {
+      "width": 768,
+      "route": "home",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "bodyScrollWidth": 768
+    },
+    {
+      "width": 768,
+      "route": "explore",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "bodyScrollWidth": 768
+    },
+    {
+      "width": 768,
+      "route": "login",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "bodyScrollWidth": 768
+    },
+    {
+      "width": 768,
+      "route": "services",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clientWidth": 768,
+      "bodyScrollWidth": 768
+    },
+    {
+      "width": 1280,
+      "route": "home",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "bodyScrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "route": "explore",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "bodyScrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "route": "login",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "bodyScrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "route": "services",
+      "locale": "te",
+      "overflow": false,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "bodyScrollWidth": 1280
+    }
+  ],
+  "routeSmoke": [
+    {
+      "route": "home",
+      "path": "/",
+      "status": 200,
+      "redirectedToLogin": false,
+      "ok": true
+    },
+    {
+      "route": "explore",
+      "path": "/explore",
+      "status": 200,
+      "redirectedToLogin": false,
+      "ok": true
+    },
+    {
+      "route": "services",
+      "path": "/services",
+      "status": 200,
+      "redirectedToLogin": false,
+      "ok": true
+    },
+    {
+      "route": "jobs",
+      "path": "/jobs",
+      "status": 200,
+      "redirectedToLogin": false,
+      "ok": true
+    },
+    {
+      "route": "crops",
+      "path": "/crops",
+      "status": 200,
+      "redirectedToLogin": false,
+      "ok": true
+    },
+    {
+      "route": "buyers",
+      "path": "/buyers",
+      "status": 200,
+      "redirectedToLogin": false,
+      "ok": true
+    },
+    {
+      "route": "login",
+      "path": "/login",
+      "status": 200,
+      "redirectedToLogin": true,
+      "ok": true
+    },
+    {
+      "route": "agri-mitra",
+      "path": "/agri-mitra",
+      "status": 200,
+      "redirectedToLogin": true,
+      "ok": true
+    }
+  ],
+  "screenshotIndex": [
+    {
+      "file": "home-en-320px-w320.png",
+      "width": 320,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-360px-w360.png",
+      "width": 360,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-375px-w375.png",
+      "width": 375,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-390px-mobile.png",
+      "width": 390,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-430px-w430.png",
+      "width": 430,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-768px-tablet.png",
+      "width": 768,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-1024px-w1024.png",
+      "width": 1024,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-1280px-desktop.png",
+      "width": 1280,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-1440px-w1440.png",
+      "width": 1440,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-en-1920px-w1920.png",
+      "width": 1920,
+      "route": "home",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "explore-en-390px-mobile.png",
+      "width": 390,
+      "route": "explore",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "login-en-390px-mobile.png",
+      "width": 390,
+      "route": "login",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "services-en-390px-mobile.png",
+      "width": 390,
+      "route": "services",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "explore-en-768px-tablet.png",
+      "width": 768,
+      "route": "explore",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "login-en-768px-tablet.png",
+      "width": 768,
+      "route": "login",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "services-en-768px-tablet.png",
+      "width": 768,
+      "route": "services",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "explore-en-1280px-desktop.png",
+      "width": 1280,
+      "route": "explore",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "login-en-1280px-desktop.png",
+      "width": 1280,
+      "route": "login",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "services-en-1280px-desktop.png",
+      "width": 1280,
+      "route": "services",
+      "locale": "en",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-te-390px-mobile.png",
+      "width": 390,
+      "route": "home",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "explore-te-390px-mobile.png",
+      "width": 390,
+      "route": "explore",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "login-te-390px-mobile.png",
+      "width": 390,
+      "route": "login",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "services-te-390px-mobile.png",
+      "width": 390,
+      "route": "services",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-te-768px-tablet.png",
+      "width": 768,
+      "route": "home",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "explore-te-768px-tablet.png",
+      "width": 768,
+      "route": "explore",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "login-te-768px-tablet.png",
+      "width": 768,
+      "route": "login",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "services-te-768px-tablet.png",
+      "width": 768,
+      "route": "services",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "home-te-1280px-desktop.png",
+      "width": 1280,
+      "route": "home",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "explore-te-1280px-desktop.png",
+      "width": 1280,
+      "route": "explore",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "login-te-1280px-desktop.png",
+      "width": 1280,
+      "route": "login",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    },
+    {
+      "file": "services-te-1280px-desktop.png",
+      "width": 1280,
+      "route": "services",
+      "locale": "te",
+      "status": 200,
+      "overflow": false
+    }
+  ]
+}

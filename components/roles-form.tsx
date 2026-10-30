@@ -2,6 +2,7 @@
 
 import { useActionState, useMemo, useState } from "react";
 import { saveRoles, type RoleActionState } from "@/app/actions/roles";
+import { useLocale } from "@/components/locale-provider";
 import type { AppRole } from "@/lib/auth";
 import { Field, Notice, PrimaryButton, Select, TextArea, TextInput } from "@/components/ui";
 
@@ -14,7 +15,7 @@ type Village = { id: number; name: string; mandal_id: number };
 export function RolesForm({
   displayName,
   roles,
-  nextPath = "/services",
+  nextPath = "/profile",
   districts,
   mandals,
   villages,
@@ -30,6 +31,7 @@ export function RolesForm({
   farmerVillageId?: number | null;
   farmerAbout?: string;
 }) {
+  const { copy } = useLocale();
   const [state, action, pending] = useActionState(saveRoles, initialState);
   const [isFarmer, setIsFarmer] = useState(roles.includes("farmer"));
   const initialVillage = villages.find((v) => v.id === farmerVillageId);
@@ -56,17 +58,17 @@ export function RolesForm({
     <form action={action} className="space-y-5">
       <input type="hidden" name="next" value={nextPath} />
       {state.error ? <Notice tone="error">{state.error}</Notice> : null}
-      <Field label="Your name">
+      <Field label={copy.yourName}>
         <TextInput
           name="display_name"
           defaultValue={displayName}
-          placeholder="Farmer or business name"
+          placeholder={copy.yourNamePlaceholder}
           required
         />
       </Field>
       <fieldset className="space-y-3">
-        <legend className="text-sm font-medium">How will you use AllFarmNeeds?</legend>
-        <label className="flex items-start gap-3 rounded-xl border border-border bg-white p-3">
+        <legend className="text-sm font-medium">{copy.howUse}</legend>
+        <label className="flex min-h-14 items-start gap-3 rounded-xl border border-border bg-white p-3">
           <input
             type="checkbox"
             name="farmer"
@@ -75,13 +77,11 @@ export function RolesForm({
             onChange={(event) => setIsFarmer(event.target.checked)}
           />
           <span>
-            <span className="block font-medium">Farmer</span>
-            <span className="text-sm text-muted">
-              Find services, post farm jobs, and sell produce on the crop marketplace.
-            </span>
+            <span className="block font-medium">{copy.roleFarmer}</span>
+            <span className="text-sm text-muted">{copy.roleFarmerDesc}</span>
           </span>
         </label>
-        <label className="flex items-start gap-3 rounded-xl border border-border bg-white p-3">
+        <label className="flex min-h-14 items-start gap-3 rounded-xl border border-border bg-white p-3">
           <input
             type="checkbox"
             name="worker"
@@ -89,13 +89,11 @@ export function RolesForm({
             className="mt-1"
           />
           <span>
-            <span className="block font-medium">Farm worker</span>
-            <span className="text-sm text-muted">
-              Browse farm jobs and apply for paid work near your village.
-            </span>
+            <span className="block font-medium">{copy.roleWorker}</span>
+            <span className="text-sm text-muted">{copy.roleWorkerDesc}</span>
           </span>
         </label>
-        <label className="flex items-start gap-3 rounded-xl border border-border bg-white p-3">
+        <label className="flex min-h-14 items-start gap-3 rounded-xl border border-border bg-white p-3">
           <input
             type="checkbox"
             name="service_provider"
@@ -103,13 +101,11 @@ export function RolesForm({
             className="mt-1"
           />
           <span>
-            <span className="block font-medium">Service provider</span>
-            <span className="text-sm text-muted">
-              Publish tractor, labour, irrigation and other farm services.
-            </span>
+            <span className="block font-medium">{copy.roleProvider}</span>
+            <span className="text-sm text-muted">{copy.roleProviderDesc}</span>
           </span>
         </label>
-        <label className="flex items-start gap-3 rounded-xl border border-border bg-white p-3">
+        <label className="flex min-h-14 items-start gap-3 rounded-xl border border-border bg-white p-3">
           <input
             type="checkbox"
             name="buyer"
@@ -117,18 +113,16 @@ export function RolesForm({
             className="mt-1"
           />
           <span>
-            <span className="block font-medium">Buyer / trader</span>
-            <span className="text-sm text-muted">
-              Reserve approved crop listings and manage deals with sellers.
-            </span>
+            <span className="block font-medium">{copy.roleBuyer}</span>
+            <span className="text-sm text-muted">{copy.roleBuyerDesc}</span>
           </span>
         </label>
       </fieldset>
 
       {isFarmer ? (
         <div className="space-y-4 rounded-2xl border border-border bg-white p-4">
-          <p className="text-sm font-medium">Farmer location</p>
-          <Field label="District">
+          <p className="text-sm font-medium">{copy.farmerLocation}</p>
+          <Field label={copy.district}>
             <Select
               value={districtId}
               onChange={(event) => {
@@ -146,7 +140,7 @@ export function RolesForm({
               ))}
             </Select>
           </Field>
-          <Field label="Mandal">
+          <Field label={copy.mandal}>
             <Select
               value={mandalId}
               onChange={(event) => setMandalId(Number(event.target.value))}
@@ -158,12 +152,12 @@ export function RolesForm({
               ))}
             </Select>
           </Field>
-          <Field label="Village / town">
+          <Field label={copy.village}>
             <Select
               name="village_id"
               defaultValue={farmerVillageId ?? filteredVillages[0]?.id ?? ""}
             >
-              <option value="">Select location</option>
+              <option value="">{copy.selectLocation}</option>
               {filteredVillages.map((village) => (
                 <option key={village.id} value={village.id}>
                   {village.name}
@@ -171,14 +165,14 @@ export function RolesForm({
               ))}
             </Select>
           </Field>
-          <Field label="About your farm (optional)">
+          <Field label={copy.aboutFarm}>
             <TextArea name="about" rows={3} defaultValue={farmerAbout ?? ""} />
           </Field>
         </div>
       ) : null}
 
-      <PrimaryButton type="submit" disabled={pending}>
-        {pending ? "Saving…" : "Continue"}
+      <PrimaryButton type="submit" disabled={pending} className="min-h-11 w-full sm:w-auto">
+        {pending ? copy.saving : copy.continue}
       </PrimaryButton>
     </form>
   );

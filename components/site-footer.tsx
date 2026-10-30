@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useLocale } from "@/components/locale-provider";
 
-export function SiteFooter() {
+export function SiteFooter({ signedIn = false }: { signedIn?: boolean }) {
   const { copy, locale } = useLocale();
 
   return (
@@ -51,24 +51,52 @@ export function SiteFooter() {
         <div>
           <p className="text-sm font-medium">{copy.navAccount}</p>
           <ul className="mt-3 space-y-2 text-sm text-muted">
+            {signedIn ? (
+              <>
+                <li>
+                  <Link href="/profile" className="hover:text-accent-strong">
+                    {copy.navProfile}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/notifications"
+                    className="hover:text-accent-strong"
+                  >
+                    {copy.notifications}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/messages" className="hover:text-accent-strong">
+                    {copy.messages}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/create" className="hover:text-accent-strong">
+                    {copy.navCreate}
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link href="/login" className="hover:text-accent-strong">
+                    {copy.signInRegister}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/explore" className="hover:text-accent-strong">
+                    {copy.navExplore}
+                  </Link>
+                </li>
+              </>
+            )}
             <li>
-              <Link href="/login" className="hover:text-accent-strong">
-                {copy.signInRegister}
-              </Link>
-            </li>
-            <li>
-              <Link href="/onboarding/roles" className="hover:text-accent-strong">
+              <Link
+                href="/onboarding/roles"
+                className="hover:text-accent-strong"
+              >
                 {copy.roles}
-              </Link>
-            </li>
-            <li>
-              <Link href="/messages" className="hover:text-accent-strong">
-                {copy.messages}
-              </Link>
-            </li>
-            <li>
-              <Link href="/create" className="hover:text-accent-strong">
-                {copy.navCreate}
               </Link>
             </li>
           </ul>

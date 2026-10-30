@@ -4,6 +4,8 @@ import { RolesForm } from "@/components/roles-form";
 import { PageFallback } from "@/components/page-fallback";
 import { PageShell, Panel } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { t } from "@/lib/locale";
+import { getRequestLocale } from "@/lib/locale-server";
 import { getListingFormOptions } from "@/lib/locations";
 import { safeInternalPath } from "@/lib/redirect";
 import { createClient } from "@/utils/supabase/server";
@@ -20,6 +22,8 @@ async function RolesContent({
 
   const params = await searchParams;
   const next = safeInternalPath(params.next);
+  const { locale } = await getRequestLocale();
+  const copy = t(locale);
   const supabase = await createClient();
   const [{ data: profile }, { data: farmer }, options] = await Promise.all([
     supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
@@ -32,10 +36,7 @@ async function RolesContent({
   ]);
 
   return (
-    <PageShell
-      title="Choose your roles"
-      subtitle="One account can hold farmer, worker, provider, and buyer roles."
-    >
+    <PageShell title={copy.rolesTitle} subtitle={copy.rolesSubtitle}>
       <Panel>
         <RolesForm
           displayName={profile?.display_name ?? ""}

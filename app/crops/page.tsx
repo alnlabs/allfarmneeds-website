@@ -7,6 +7,7 @@ import {
   ListingCard,
   PageShell,
   Select,
+  TextInput,
 } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { t } from "@/lib/locale";
@@ -16,10 +17,11 @@ import { createClient } from "@/utils/supabase/server";
 async function CropsContent({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const categoryId = params.category ? Number(params.category) : undefined;
+  const query = params.q?.trim() || undefined;
   const { locale } = await getRequestLocale();
   const copy = t(locale);
   const user = await requireUser();
@@ -31,7 +33,7 @@ async function CropsContent({
       .select("id, name_en, name_te")
       .order("name_en"),
     (async () => {
-      let query = supabase
+      let listings = supabase
         .from("product_listings")
         .select(
           `
@@ -52,8 +54,13 @@ async function CropsContent({
         .in("status", ["published", "partially_sold"])
         .eq("moderation_status", "approved")
         .order("updated_at", { ascending: false });
-      if (categoryId) query = query.eq("category_id", categoryId);
-      return query;
+      if (categoryId) listings = listings.eq("category_id", categoryId);
+      if (query) {
+        listings = listings.or(
+          `title.ilike.%${query}%,description.ilike.%${query}%`,
+        );
+      }
+      return listings;
     })(),
   ]);
 
@@ -62,16 +69,12 @@ async function CropsContent({
   return (
     <PageShell
       title={copy.modules.cropMarketplace.title}
-      subtitle={
-        locale === "te"
-          ? "ఆమోదించిన పంట జాబితాలు చూడండి మరియు పరిమాణం రిజర్వ్ చేయండి."
-          : "Browse approved crop listings and reserve quantity safely."
-      }
+      subtitle={copy.cropsBrowseSubtitle}
       actions={
         user?.roles.includes("farmer") ? (
           <Link
             href="/crops/new"
-            className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+            className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
           >
             {locale === "te" ? "పంట జాబితా" : "Sell produce"}
           </Link>
@@ -81,6 +84,14 @@ async function CropsContent({
       <div className="grid gap-6 lg:grid-cols-[minmax(14rem,18rem)_1fr]">
         <FilterPanel title={copy.filters}>
           <form className="grid gap-3">
+            <label className="space-y-2 text-sm">
+              <span className="font-medium">{copy.search}</span>
+              <TextInput
+                name="q"
+                defaultValue={query ?? ""}
+                placeholder={copy.searchPlaceholder}
+              />
+            </label>
             <label className="space-y-2 text-sm">
               <span className="font-medium">{copy.category}</span>
               <Select name="category" defaultValue={categoryId ?? ""}>
@@ -96,7 +107,7 @@ async function CropsContent({
             </label>
             <button
               type="submit"
-              className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+              className="min-h-11 w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
               {copy.applyFilters}
             </button>
@@ -112,15 +123,27 @@ async function CropsContent({
                   ? "ఇంకా ఆమోదించిన పంట జాబితాలు లేవు."
                   : "No approved crop listings match these filters yet."
               }
+              body={
+                locale === "te"
+                  ? "ఫిల్టర్లు మార్చండి లేదా తర్వాత మళ్లీ చూడండి."
+                  : "Try different filters or check again later."
+              }
               action={
                 user?.roles.includes("farmer") ? (
                   <Link
                     href="/crops/new"
-                    className="inline-flex rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+                    className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
                   >
                     {locale === "te" ? "పంట జాబితా" : "Sell produce"}
                   </Link>
-                ) : null
+                ) : (
+                  <Link
+                    href="/explore"
+                    className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
+                  >
+                    {copy.browseMarketplace}
+                  </Link>
+                )
               }
             />
           ) : (
@@ -152,19 +175,24 @@ async function CropsContent({
                     meta={
                       <>
                         <span>
-                          {listing.quantity_available} {listing.quantity_unit}
+                          {copy.availableQty}: {listing.quantity_available}{" "}
+                          {listing.quantity_unit}
                         </span>
                         {listing.expected_price != null ? (
-                          <span>
-                            ₹{listing.expected_price}
-                            {listing.price_unit ? ` / ${listing.price_unit}` : ""}
+                          <span className="font-medium text-foreground">
+                            {copy.expectedPrice}: ₹{listing.expected_price}
+                            {listing.price_unit
+                              ? ` / ${listing.price_unit}`
+                              : ""}
                           </span>
-                        ) : null}
+                        ) : (
+                          <span>{copy.priceOnEnquiry}</span>
+                        )}
                         {listing.quality_grade ? (
                           <span>{listing.quality_grade}</span>
                         ) : null}
                         {village?.name ? <span>{village.name}</span> : null}
-                        <span>{seller?.display_name ?? "Seller"}</span>
+                        <span>{seller?.display_name ?? copy.seller}</span>
                       </>
                     }
                   />
@@ -181,10 +209,10 @@ async function CropsContent({
 export default function CropsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   return (
-    <Suspense fallback={<PageFallback title="Crop Marketplace" />}>
+    <Suspense fallback={<PageFallback title="Sell Crops" />}>
       <CropsContent searchParams={searchParams} />
     </Suspense>
   );

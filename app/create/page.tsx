@@ -13,6 +13,8 @@ async function CreateContent() {
 
   const { locale } = await getRequestLocale();
   const copy = t(locale);
+  const isWorker =
+    user.roles.includes("worker") || user.roles.includes("labour_contractor");
 
   const actions = [
     {
@@ -51,6 +53,21 @@ async function CreateContent() {
           ? "మీకు కావాల్సిన పంట తెలియజేయండి."
           : "Tell sellers what produce you need.",
     },
+    {
+      show: isWorker,
+      href: "/jobs",
+      title: copy.findJobs,
+      body: copy.findJobsBody,
+    },
+    {
+      show: isWorker,
+      href: "/worker/profile",
+      title: copy.workerProfile,
+      body:
+        locale === "te"
+          ? "మీ నైపుణ్యాలు మరియు గ్రామం అప్‌డేట్ చేయండి."
+          : "Keep skills and village details up to date.",
+    },
   ].filter((item) => item.show);
 
   return (
@@ -60,7 +77,7 @@ async function CreateContent() {
       actions={
         <Link
           href="/onboarding/roles?next=/create"
-          className="rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
+          className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 text-sm hover:bg-accent-soft"
         >
           {copy.roles}
         </Link>
@@ -75,13 +92,13 @@ async function CreateContent() {
           }
           body={
             locale === "te"
-              ? "రైతు, ప్రొవైడర్ లేదా కొనుగోలుదారు పాత్ర అవసరం."
-              : "Add farmer, provider or buyer role first."
+              ? "రైతు, కూలీ, ప్రొవైడర్ లేదా కొనుగోలుదారు పాత్ర అవసరం."
+              : "Add farmer, worker, provider or buyer role first."
           }
           action={
             <Link
               href="/onboarding/roles?next=/create"
-              className="inline-flex rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+              className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
             >
               {copy.roles}
             </Link>

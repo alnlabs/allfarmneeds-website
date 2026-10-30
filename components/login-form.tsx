@@ -7,11 +7,13 @@ import {
   verifyLoginCode,
   type AuthActionState,
 } from "@/app/actions/auth";
+import { useLocale } from "@/components/locale-provider";
 import { Field, Notice, PrimaryButton, TextInput } from "@/components/ui";
 
 const initialState: AuthActionState = { step: "email" };
 
-export function LoginForm({ nextPath = "/services" }: { nextPath?: string }) {
+export function LoginForm({ nextPath = "/profile" }: { nextPath?: string }) {
+  const { copy } = useLocale();
   const [sendState, sendAction, sendPending] = useActionState(
     sendLoginCode,
     { ...initialState, next: nextPath },
@@ -38,25 +40,22 @@ export function LoginForm({ nextPath = "/services" }: { nextPath?: string }) {
             <input type="hidden" name="next" value={next} />
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-2.5 font-medium hover:bg-accent-soft"
+              className="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-2.5 font-medium hover:bg-accent-soft"
             >
               <GoogleMark />
-              Continue with Google
+              {copy.continueGoogle}
             </button>
           </form>
 
           <div className="flex items-center gap-3 text-sm text-muted">
             <span className="h-px flex-1 bg-border" />
-            or use email
+            {copy.orUseEmail}
             <span className="h-px flex-1 bg-border" />
           </div>
 
           <form action={sendAction} className="space-y-4">
             <input type="hidden" name="next" value={next} />
-            <Field
-              label="Email"
-              hint="We will email a one-time code. Magic links also work when your Auth template includes them."
-            >
+            <Field label={copy.emailLabel} hint={copy.emailHint}>
               <TextInput
                 id="email"
                 name="email"
@@ -66,8 +65,8 @@ export function LoginForm({ nextPath = "/services" }: { nextPath?: string }) {
                 placeholder="you@example.com"
               />
             </Field>
-            <PrimaryButton type="submit" disabled={sendPending}>
-              {sendPending ? "Sending…" : "Send login code"}
+            <PrimaryButton type="submit" disabled={sendPending} className="min-h-11 w-full">
+              {sendPending ? copy.sendingCode : copy.sendLoginCode}
             </PrimaryButton>
           </form>
         </>
@@ -75,10 +74,10 @@ export function LoginForm({ nextPath = "/services" }: { nextPath?: string }) {
         <form action={verifyAction} className="space-y-4">
           <input type="hidden" name="email" value={email} />
           <input type="hidden" name="next" value={next} />
-          <Field label="Email">
+          <Field label={copy.emailLabel}>
             <TextInput name="email_display" value={email} disabled readOnly />
           </Field>
-          <Field label="One-time code" hint="Enter the 6-digit code from your email.">
+          <Field label={copy.oneTimeCode} hint={copy.oneTimeCodeHint}>
             <TextInput
               id="token"
               name="token"
@@ -88,8 +87,8 @@ export function LoginForm({ nextPath = "/services" }: { nextPath?: string }) {
               placeholder="123456"
             />
           </Field>
-          <PrimaryButton type="submit" disabled={verifyPending}>
-            {verifyPending ? "Verifying…" : "Verify and continue"}
+          <PrimaryButton type="submit" disabled={verifyPending} className="min-h-11 w-full">
+            {verifyPending ? copy.verifying : copy.verifyContinue}
           </PrimaryButton>
         </form>
       )}

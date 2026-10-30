@@ -17,19 +17,30 @@ function NavLink({
   href,
   children,
   onClick,
+  className = "",
 }: {
   href: string;
   children: React.ReactNode;
   onClick?: () => void;
+  className?: string;
 }) {
   return (
     <Link
       href={href}
       onClick={onClick}
-      className="rounded-lg px-3 py-2 text-sm hover:bg-accent-soft"
+      className={`rounded-lg px-3 py-2 text-sm hover:bg-accent-soft ${className}`}
     >
       {children}
     </Link>
+  );
+}
+
+function UnreadBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-medium text-white">
+      {count > 99 ? "99+" : count}
+    </span>
   );
 }
 
@@ -40,7 +51,9 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const { copy, locationLabel, detecting } = useLocale();
   const [open, setOpen] = useState(false);
+  const [myWorkOpen, setMyWorkOpen] = useState(false);
   const menuId = useId();
+  const myWorkId = useId();
   const isProvider = roles.includes("service_provider");
   const isStaff =
     roles.includes("administrator") || roles.includes("moderator");
@@ -62,6 +75,24 @@ export function SiteHeader({
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!myWorkOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMyWorkOpen(false);
+    };
+    const onPointer = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest(`[data-my-work-menu="${myWorkId}"]`)) return;
+      setMyWorkOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onPointer);
+    };
+  }, [myWorkOpen, myWorkId]);
+
   const close = () => setOpen(false);
 
   const primary = (
@@ -77,14 +108,10 @@ export function SiteHeader({
       </NavLink>
       <NavLink href="/messages" onClick={close}>
         {copy.navMessages}
-        {unreadNotifications > 0 ? (
-          <span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-medium text-white">
-            {unreadNotifications > 99 ? "99+" : unreadNotifications}
-          </span>
-        ) : null}
       </NavLink>
       <NavLink href="/profile" onClick={close}>
         {copy.navProfile}
+        <UnreadBadge count={unreadNotifications} />
       </NavLink>
     </>
   );
@@ -112,14 +139,11 @@ export function SiteHeader({
     </>
   );
 
-  const account = email ? (
+  const accountLinks = (
     <>
-      <p className="px-3 pt-2 text-xs font-medium uppercase tracking-wide text-muted">
-        {copy.navAccount}
-      </p>
       <NavLink href="/notifications" onClick={close}>
         {copy.notifications}
-        {unreadNotifications > 0 ? ` (${unreadNotifications})` : ""}
+        <UnreadBadge count={unreadNotifications} />
       </NavLink>
       <NavLink href="/bookings" onClick={close}>
         {copy.bookings}
@@ -174,16 +198,25 @@ export function SiteHeader({
       ) : null}
       {isStaff ? (
         <NavLink href="/admin" onClick={close}>
-          Admin
+          {copy.admin}
         </NavLink>
       ) : null}
       <NavLink href="/onboarding/roles" onClick={close}>
         {copy.roles}
       </NavLink>
+    </>
+  );
+
+  const account = email ? (
+    <>
+      <p className="px-3 pt-2 text-xs font-medium uppercase tracking-wide text-muted">
+        {copy.navAccount}
+      </p>
+      {accountLinks}
       <form action={signOut} className="px-3 pt-2">
         <button
           type="submit"
-          className="w-full rounded-lg border border-border px-3 py-2 text-left text-sm hover:bg-accent-soft"
+          className="min-h-11 w-full rounded-lg border border-border px-3 py-2 text-left text-sm hover:bg-accent-soft"
         >
           {copy.signOut}
         </button>
@@ -194,7 +227,7 @@ export function SiteHeader({
       <Link
         href="/login"
         onClick={close}
-        className="inline-flex w-full items-center justify-center rounded-xl bg-accent px-3 py-2.5 text-sm font-medium text-white hover:bg-accent-strong"
+        className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-accent px-3 py-2.5 text-sm font-medium text-white hover:bg-accent-strong"
       >
         {copy.signIn}
       </Link>
@@ -233,7 +266,9 @@ export function SiteHeader({
             aria-controls={menuId}
             onClick={() => setOpen((value) => !value)}
           >
-            <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
+            <span className="sr-only">
+              {open ? copy.closeMenu : copy.openMenu}
+            </span>
             <span className="flex w-4 flex-col gap-1" aria-hidden>
               <span className="block h-0.5 rounded bg-foreground" />
               <span className="block h-0.5 rounded bg-foreground" />
@@ -243,48 +278,179 @@ export function SiteHeader({
         </div>
       </div>
 
-      {/* Desktop primary nav */}
+      {/* Desktop: main app nav only — marketplace via Explore */}
       <div className="hidden border-t border-border lg:block">
         <nav className="mx-auto flex w-full max-w-7xl items-center gap-1 px-4 py-2 sm:px-6 lg:px-8">
-          {primary}
-          <span className="mx-2 h-4 w-px bg-border" aria-hidden />
-          <NavLink href="/services">{copy.modules.farmServices.title}</NavLink>
-          <NavLink href="/jobs">{copy.modules.farmJobs.title}</NavLink>
-          <NavLink href="/crops">{copy.modules.cropMarketplace.title}</NavLink>
-          <NavLink href="/buyers">{copy.modules.buyersTraders.title}</NavLink>
-          <NavLink href="/agri-mitra">{copy.agriMitra}</NavLink>
+          <NavLink href="/">{copy.navHome}</NavLink>
+          <NavLink href="/explore">{copy.navExplore}</NavLink>
+          <NavLink href="/create">{copy.navCreate}</NavLink>
+          <NavLink href="/messages">{copy.navMessages}</NavLink>
           {email ? (
-            <>
-              <span className="mx-2 h-4 w-px bg-border" aria-hidden />
-              <NavLink href="/notifications">
-                {copy.notifications}
-                {unreadNotifications > 0 ? (
-                  <span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-xs font-medium text-white">
-                    {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                  </span>
-                ) : null}
-              </NavLink>
-              {isStaff ? <NavLink href="/admin">Admin</NavLink> : null}
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="rounded-lg px-3 py-2 text-sm hover:bg-accent-soft"
+            <div className="relative" data-my-work-menu={myWorkId}>
+              <button
+                type="button"
+                className="inline-flex items-center rounded-lg px-3 py-2 text-sm hover:bg-accent-soft"
+                aria-expanded={myWorkOpen}
+                aria-controls={`${myWorkId}-panel`}
+                onClick={() => setMyWorkOpen((value) => !value)}
+              >
+                {copy.navProfile}
+                <UnreadBadge count={unreadNotifications} />
+              </button>
+              {myWorkOpen ? (
+                <div
+                  id={`${myWorkId}-panel`}
+                  className="absolute left-0 top-full z-50 mt-1 w-64 rounded-2xl border border-border bg-white p-2 shadow-lg"
                 >
-                  {copy.signOut}
-                </button>
-              </form>
-            </>
-          ) : null}
+                  <NavLink
+                    href="/profile"
+                    onClick={() => setMyWorkOpen(false)}
+                    className="block"
+                  >
+                    {copy.navProfile}
+                  </NavLink>
+                  <NavLink
+                    href="/notifications"
+                    onClick={() => setMyWorkOpen(false)}
+                    className="block"
+                  >
+                    {copy.notifications}
+                    <UnreadBadge count={unreadNotifications} />
+                  </NavLink>
+                  <NavLink
+                    href="/bookings"
+                    onClick={() => setMyWorkOpen(false)}
+                    className="block"
+                  >
+                    {copy.bookings}
+                  </NavLink>
+                  {isFarmer ? (
+                    <>
+                      <NavLink
+                        href="/farmer/jobs"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.myJobs}
+                      </NavLink>
+                      <NavLink
+                        href="/seller/crops"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.myCrops}
+                      </NavLink>
+                    </>
+                  ) : null}
+                  {isFarmer || isBuyer ? (
+                    <NavLink
+                      href="/buyer/deals"
+                      onClick={() => setMyWorkOpen(false)}
+                      className="block"
+                    >
+                      {copy.cropDeals}
+                    </NavLink>
+                  ) : null}
+                  {isBuyer ? (
+                    <>
+                      <NavLink
+                        href="/buyer/requirements"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.myRequirements}
+                      </NavLink>
+                      <NavLink
+                        href="/buyer/profile"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.buyerProfile}
+                      </NavLink>
+                    </>
+                  ) : null}
+                  {isWorker ? (
+                    <>
+                      <NavLink
+                        href="/worker/applications"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.applications}
+                      </NavLink>
+                      <NavLink
+                        href="/worker/profile"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.workerProfile}
+                      </NavLink>
+                    </>
+                  ) : null}
+                  {isProvider ? (
+                    <>
+                      <NavLink
+                        href="/provider/listings"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.myListings}
+                      </NavLink>
+                      <NavLink
+                        href="/provider/bookings"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.providerBookings}
+                      </NavLink>
+                      <NavLink
+                        href="/provider/profile"
+                        onClick={() => setMyWorkOpen(false)}
+                        className="block"
+                      >
+                        {copy.providerProfile}
+                      </NavLink>
+                    </>
+                  ) : null}
+                  {isStaff ? (
+                    <NavLink
+                      href="/admin"
+                      onClick={() => setMyWorkOpen(false)}
+                      className="block"
+                    >
+                      {copy.admin}
+                    </NavLink>
+                  ) : null}
+                  <NavLink
+                    href="/onboarding/roles"
+                    onClick={() => setMyWorkOpen(false)}
+                    className="block"
+                  >
+                    {copy.roles}
+                  </NavLink>
+                  <form action={signOut} className="px-1 pt-1">
+                    <button
+                      type="submit"
+                      className="w-full rounded-lg border border-border px-3 py-2 text-left text-sm hover:bg-accent-soft"
+                    >
+                      {copy.signOut}
+                    </button>
+                  </form>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <NavLink href="/login">{copy.signIn}</NavLink>
+          )}
         </nav>
       </div>
 
-      {/* Mobile drawer */}
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
           <button
             type="button"
             className="absolute inset-0 bg-black/30"
-            aria-label="Close menu"
+            aria-label={copy.closeMenu}
             onClick={close}
           />
           <div
@@ -293,7 +459,7 @@ export function SiteHeader({
           >
             <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
               <div className="min-w-0">
-                <p className="font-semibold text-accent-strong">Menu</p>
+                <p className="font-semibold text-accent-strong">{copy.menu}</p>
                 <p className="truncate text-xs text-muted">
                   {detecting
                     ? copy.detectingLocation
@@ -307,10 +473,10 @@ export function SiteHeader({
                 className="min-h-10 shrink-0 rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-accent-soft"
                 onClick={close}
               >
-                Close
+                {copy.close}
               </button>
             </div>
-            <nav className="flex flex-col gap-0.5 py-3">
+            <nav className="flex flex-col gap-0.5 py-3 pb-24">
               {primary}
               {marketplace}
               {account}

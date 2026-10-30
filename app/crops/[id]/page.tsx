@@ -4,8 +4,10 @@ import { notFound } from "next/navigation";
 import { DealForm } from "@/components/deal-form";
 import { PageFallback } from "@/components/page-fallback";
 import { ReportForm } from "@/components/report-form";
-import { PageShell, Panel } from "@/components/ui";
+import { PageShell, Panel, StatusBadge } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
+import { statusLabel, statusTone, t } from "@/lib/locale";
+import { getRequestLocale } from "@/lib/locale-server";
 import { createClient } from "@/utils/supabase/server";
 
 async function CropDetailContent({
@@ -17,6 +19,8 @@ async function CropDetailContent({
   const listingId = Number(id);
   if (!listingId) notFound();
 
+  const { locale } = await getRequestLocale();
+  const copy = t(locale);
   const user = await requireUser();
   const isStaff =
     !!user &&
@@ -78,14 +82,27 @@ async function CropDetailContent({
     <PageShell
       title={listing.title}
       subtitle={
-        category ? `${category.name_te} — ${category.name_en}` : "Crop listing"
+        category
+          ? locale === "te"
+            ? `${category.name_te} — ${category.name_en}`
+            : `${category.name_en} — ${category.name_te}`
+          : copy.modules.cropMarketplace.title
       }
     >
       {!isPublic ? (
-        <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
-          Not public yet (status: {listing.status}, moderation:{" "}
-          {listing.moderation_status}).
-        </p>
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          <span>
+            {locale === "te"
+              ? "ఈ జాబితా ఇంకా పబ్లిక్ కాదు."
+              : "This listing is not public yet."}
+          </span>
+          <StatusBadge tone={statusTone(listing.status)}>
+            {statusLabel(locale, listing.status)}
+          </StatusBadge>
+          <StatusBadge tone={statusTone(listing.moderation_status)}>
+            {statusLabel(locale, listing.moderation_status)}
+          </StatusBadge>
+        </div>
       ) : null}
 
       {photos.length > 0 ? (
@@ -105,57 +122,60 @@ async function CropDetailContent({
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <Panel>
           <p className="text-sm text-muted">
-            {seller?.display_name ?? "Seller"}
+            {seller?.display_name ?? copy.seller}
             {village?.name ? ` · ${village.name}` : ""}
           </p>
           <p className="mt-4 whitespace-pre-wrap">
-            {listing.description || "No description provided."}
+            {listing.description ||
+              (locale === "te" ? "వివరణ లేదు." : "No description provided.")}
           </p>
           <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-muted">Available</dt>
+              <dt className="text-muted">{copy.availableQty}</dt>
               <dd className="font-medium">
                 {listing.quantity_available} {listing.quantity_unit}
               </dd>
             </div>
             <div>
-              <dt className="text-muted">Price</dt>
+              <dt className="text-muted">{copy.expectedPrice}</dt>
               <dd className="font-medium">
                 {listing.expected_price != null
                   ? `₹${listing.expected_price}${listing.price_unit ? ` / ${listing.price_unit}` : ""}`
-                  : "On enquiry"}
+                  : copy.priceOnEnquiry}
               </dd>
             </div>
             <div>
-              <dt className="text-muted">Grade</dt>
+              <dt className="text-muted">
+                {locale === "te" ? "గ్రేడ్" : "Grade"}
+              </dt>
               <dd className="font-medium">{listing.quality_grade || "—"}</dd>
             </div>
             <div>
-              <dt className="text-muted">Fulfillment</dt>
+              <dt className="text-muted">
+                {locale === "te" ? "డెలివరీ" : "Fulfillment"}
+              </dt>
               <dd className="font-medium">{listing.fulfillment}</dd>
             </div>
           </dl>
         </Panel>
 
         <Panel>
-          <h2 className="text-lg font-semibold">Reserve quantity</h2>
-          <p className="mt-2 text-sm text-muted">
-            Stock is held atomically so two buyers cannot oversell the same quantity.
-          </p>
+          <h2 className="text-lg font-semibold">{copy.holdQuantity}</h2>
+          <p className="mt-2 text-sm text-muted">{copy.holdQuantityHint}</p>
           <div className="mt-4">
             {!user ? (
               <Link
                 href={`/login?next=${encodeURIComponent(`/crops/${listing.id}`)}`}
-                className="inline-flex rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
+                className="inline-flex min-h-11 items-center rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-strong"
               >
-                Sign in to buy
+                {copy.signInToHold}
               </Link>
             ) : isOwner ? (
               <Link
                 href="/seller/crops"
-                className="inline-flex rounded-xl border border-border bg-white px-4 py-2.5 hover:bg-accent-soft"
+                className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 hover:bg-accent-soft"
               >
-                Manage my listings
+                {copy.manageMyListings}
               </Link>
             ) : canBuy ? (
               <DealForm
@@ -167,9 +187,9 @@ async function CropDetailContent({
             ) : (
               <Link
                 href={`/onboarding/roles?next=${encodeURIComponent(`/crops/${listing.id}`)}`}
-                className="inline-flex rounded-xl border border-border bg-white px-4 py-2.5 hover:bg-accent-soft"
+                className="inline-flex min-h-11 items-center rounded-xl border border-border bg-white px-4 py-2.5 hover:bg-accent-soft"
               >
-                Add buyer or farmer role to reserve
+                {copy.addRoleToHold}
               </Link>
             )}
           </div>
