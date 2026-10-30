@@ -20,7 +20,7 @@ async function FeaturedCategories() {
         <Link
           key={category.id}
           href={`/services?category=${category.id}`}
-          className="rounded-2xl border border-border bg-surface p-4 transition hover:border-accent"
+          className="rounded-2xl border border-border bg-white p-4 transition hover:border-accent"
         >
           <p className="font-medium">{category.name_te}</p>
           <p className="text-sm text-muted">{category.name_en}</p>
@@ -89,7 +89,7 @@ export default function HomePage() {
             <Link
               key={module.title}
               href={module.href}
-              className="rounded-2xl border border-border bg-surface p-5 transition hover:border-accent"
+              className="rounded-2xl border border-border bg-white p-5 transition hover:border-accent"
             >
               <p className="text-sm text-muted">{module.te}</p>
               <h2 className="mt-1 text-xl font-semibold">{module.title}</h2>
@@ -98,7 +98,7 @@ export default function HomePage() {
           ) : (
             <div
               key={module.title}
-              className="rounded-2xl border border-dashed border-border bg-surface/70 p-5"
+              className="rounded-2xl border border-dashed border-border bg-white p-5"
             >
               <p className="text-sm text-muted">{module.te}</p>
               <h2 className="mt-1 text-xl font-semibold">{module.title}</h2>

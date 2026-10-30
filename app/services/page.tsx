@@ -179,7 +179,7 @@ async function ServicesResults({
           <Link
             key={listing.id}
             href={`/services/${listing.id}`}
-            className="flex gap-4 rounded-2xl border border-border bg-surface p-5 transition hover:border-accent"
+            className="flex gap-4 rounded-2xl border border-border bg-white p-5 transition hover:border-accent"
           >
             {photo ? (
               // eslint-disable-next-line @next/next/no-img-element

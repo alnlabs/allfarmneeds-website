@@ -29,7 +29,7 @@ export function PageShell({
 
 export function Panel({ children }: { children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-border bg-surface p-5">
+    <section className="rounded-2xl border border-border bg-white p-5">
       {children}
     </section>
   );

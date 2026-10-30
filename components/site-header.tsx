@@ -13,7 +13,7 @@ export function SiteHeader({ email, roles = [] }: SiteHeaderProps) {
     roles.includes("administrator") || roles.includes("moderator");
 
   return (
-    <header className="border-b border-border bg-surface/90 backdrop-blur">
+    <header className="border-b border-border bg-white">
       <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-4">
         <div>
           <Link href="/" className="text-xl font-semibold tracking-tight text-accent-strong">

@@ -52,7 +52,7 @@ async function MessagesContent() {
               <Link
                 key={enquiry.id}
                 href={`/messages/${enquiry.id}`}
-                className="block rounded-2xl border border-border bg-surface p-5 hover:border-accent"
+                className="block rounded-2xl border border-border bg-white p-5 hover:border-accent"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted">
                   <span>
